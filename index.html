@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html><head>
+	<title>andrewt.net / mandelbrot</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<link rel="stylesheet" type="text/css" href="mandel.css" />
+	<script src="../common/promise.js"></script>
+	<script src="mandel.js"></script>
+	<meta http-equiv="X-UA-Compatible" content="IE=9;" />
+</head><body onLoad="init();">
+	<canvas id="can"></canvas>
+	<div id="controls">
+		<a href="javascript:activate('settings')">Settings</a> |
+		<a href="javascript:activate('maths')">Maths</a> |
+		<a href="javascript:activate('none')">Close all</a> |
+		<a href="javascript:start()">Restart</a>
+		<div id="settings" class="hidden"><p><form>
+			<label for="maxcol">Maximum <abbr title="iterations">it&rsquo;ns</abbr>:</label>
+			<input type="text" id="maxcol" name="maxcol"><br>
+			<label for="maxcolmult">Max <abbr title="iterations">it&rsquo;ns</abbr> multiplier:</label>
+			<input type="text" id="maxcolmult" name="maxcolmult"><br>
+			<label for="maxmaxcol">Max-max <abbr title="iterations">it&rsquo;ns</abbr>:</label>
+			<input type="text" id="maxmaxcol" name="maxmaxcol"><br>
+			<label for="maxr">Maximum radius:</label>
+			<input type="text" id="maxr" name="maxr"><br>
+			<label for="zoomdelay">Zoom time (s):</label>
+			<input type="text" id="zoomdelay" name="zoomdelay"><br>
+			<label for="zoomfactor">Zoom factor:</label>
+			<input type="text" id="zoomfactor" name="zoomfactor"><br>
+			<a href="javascript:recalculate()">Recalculate</a>
+		</form></p></div>
+		<div id="maths" class="hidden">
+			<p>We all know \(1 \times 1=1^2=1\). And \(-1 \times -1=(-1)^2=1\). So what's \(\sqrt{-1}\)?</p>
+			<p>Obviously it doesn't exist. It's a completely imaginary number &mdash; so let's all it \(i\), use it anyway and see what happens. Now we can say \(i^2=-1\), \((-i)^2=-1\) and \((2i)^2=-4\).</p>
+			<p>Now that we have &lsquo;real&rsquo; numbers (multiples of one) and &lsquo;imaginary&rsquo; numbers (multiples of \(i\)), let&rsquo;s make the next logical step and define &lsquo;complex&rsquo; numbers, which have real <em>and</em> imaginary parts. A complex number \(z=x+yi\), and you can work out with a bit of algebra that \(z^2=x^2-y^2+2xyi\).</p>
+			<p>Since numbers now have an \(x\) and a \(y\) part, the &lsquo;number line&rsquo; needs to be two-dimensional: it becomes a number <em>plane</em>, which we call &lsquo;the complex plane&rsquo;.</p>
+			<p>Now we&rsquo;re ready to draw the Mandelbrot Set. The screen becomes the complex plane, with \(0\) in the middle, \(1\) on the right, \(-1\) on the left, \(i\) at the top, and \(-i\) at the bottom (although it turns out \(i\) and \(-i\) are basically equivalent).</p>
+			<p>So each pixel represents a complex number \(z\). We take that number and calcluate some new ones:
+				\[ z_0 = z^2 + z \]
+				\[ z_1 = z_0^2 + z \]
+				\[ z_2 = z_1^2 + z \]
+			<center>&vellip;</center>
+				\[ z_n = z_{n-1}^2 + z \]</p>
+			<p>One of two things will happen: either the series of \(z\)s will hover around the original value, or it will eventually go crazy and become huge numbers. If it stays small, we colour the pixel black. If not, we colour it some shade of blue depending on how long it takes to become large.</p>
+			<p>In theory there are carefully defined definitions for all this, but for the purposes of drawing it in a finite length of time, we take &lsquo;small&rsquo; to mean below five and assume that if \(z_{3000}\) is small then it's staying small forever. You can <a href="javascript:activate('settings')">change these settings</a> to suit your computer.</p>
+			<p>The Mandelbrot Set is interesting because it is a fractal: it has finite area but an infinitely long perimiter. And no matter how far you zoom in, it always looks about the same. Until, that is, you zoom in too far and the numbers become too small for your computer to work with. Then it gives up and shows you a blue screen and you have to start again.</p>
+		</div>
+	</div>
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-1802479-1']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+</body></html>
