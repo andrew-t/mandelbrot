@@ -1,3 +1,28 @@
+function colour(i, cache) {
+	if (i >= 1)
+		return [0, 0, 0, 255];
+	if (cache[i])
+		return cache[i];
+	var phase = Math.floor(i * 28) % 2;
+	i = i * 28 % 1;
+	switch (phase) {
+		case 0:
+			return cache[i] = [
+				Math.pow(i, 0.2) * 255,
+				Math.pow(i, 0.8) * 255,
+				Math.pow(i, 5),
+				255
+			];
+		case 1:
+			return cache[i] = [
+				(1 - Math.sqrt(i)) * 255,
+				(1 - i) * 255,
+				(1 - i * i) * 255,
+				255
+			];
+	}
+}
+
 self.addEventListener('message', function(e) {
 
 	var height = e.data.height;
@@ -8,7 +33,7 @@ self.addEventListener('message', function(e) {
 	var maxr = e.data.maxr;
 	var maxcol = e.data.maxcol;
 
-	var y = yi, x, zx, zy, newzx, newzy, i, r2 = maxr * maxr, imi = 0, im = [];
+	var y = yi, x, zx, zy, newzx, newzy, i, r2 = maxr * maxr, imi = 0, im = [], cols = [], px;
 	for (var u = 0; u < height; ++u) {
 		x = xi;
 		for (var v = 0; v < width; ++v) {
@@ -25,20 +50,15 @@ self.addEventListener('message', function(e) {
 				zy = newzy;
 				// and so on
 			} while ((++i < maxcol) &&
-				(zx * zx + zy * zy < r2))
-			if (i >= maxcol) {
-				// if the series of zs will always stay
-				// close to z, and never trend away
-				// that point is in the Mandelbrot set
-				im[imi++] = im[imi++] = im[imi++] = 0;
-				im[imi++] = 255;
-			} else {
-				i *= 765 / maxcol;
-				im[imi++] = i <   0 ? i > 255 ? 0 : 255 : 255 - i;
-				im[imi++] = i < 255 ? i > 510 ? 0 : 255 : 510 - i;
-				im[imi++] = i < 510 ? i > 765 ? 0 : 255 : 765 - i;
-				im[imi++] = 255;
-			}
+				(zx * zx + zy * zy < r2));
+			// if the series of zs will always stay
+			// close to z, and never trend away
+			// that point is in the Mandelbrot set
+			px = colour(i / maxcol, cols);
+			im.push(px[0]);
+			im.push(px[1]);
+			im.push(px[2]);
+			im.push(px[3]);
 			x += step;
 		}
 		y += step;
