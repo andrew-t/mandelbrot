@@ -10,7 +10,7 @@ function colour(i, cache) {
 			return cache[i] = [
 				Math.pow(i, 0.2) * 255,
 				Math.pow(i, 0.8) * 255,
-				Math.pow(i, 5),
+				Math.pow(i, 5) * 255,
 				255
 			];
 		case 1:
