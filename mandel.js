@@ -3,12 +3,12 @@ var x, y, step, maxcol = 200, maxr = 5;
 var maxcolmult = 1.5, maxmaxcol = 3000;
 var timer, zoomfactor = 2, zoomdelay = 0.3; //seconds
 var calculating = false;
-var benoir = new Worker('benoir.js'), benoirsPromise, im, benoirStarted, benoirsLastJob;
+var benoir = new Worker('benoir.js'), benoirsPromise, benoirsDeferred, im, benoirStarted, benoirsLastJob;
 
 function init()
 {
 	// initialisation
-	benoir.addEventListener('message', function (result) { benoirsPromise.fulfil(result); });
+	benoir.addEventListener('message', function (result) { benoirsDeferred.resolve(result); });
 	c = document.getElementById('can');
 	ctx = c.getContext("2d");
 	start();
@@ -100,7 +100,8 @@ function recalculate() {
 	domandel();
 }
 function startBenoir() {
-	benoirsPromise = new Promise();
+	benoirsDeferred = Q.defer();
+	benoirsPromise = benoirsDeferred.promise;
 	benoirStarted = new Date();
 	benoir.postMessage(benoirsLastJob);
 }

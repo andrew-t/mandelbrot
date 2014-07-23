@@ -1,0 +1,3 @@
+[submodule "q"]
+	path = q
+	url = https://github.com/kriskowal/q.git
