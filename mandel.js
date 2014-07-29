@@ -8,7 +8,10 @@ var benoir = new Worker('benoir.js'), benoirsPromise, benoirsDeferred, im, benoi
 function init()
 {
 	// initialisation
-	benoir.addEventListener('message', function (result) { benoirsDeferred.resolve(result); });
+	benoir.addEventListener('message', function (result) { 
+		console.log('frame took ' + (new Date() - benoirStarted) + 'ms');
+		benoirsDeferred.resolve(result); 
+	});
 	c = document.getElementById('can');
 	ctx = c.getContext("2d");
 	start();
