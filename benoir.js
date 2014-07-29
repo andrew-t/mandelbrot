@@ -23,6 +23,48 @@ function colour(i, cache) {
 	}
 }
 
+function asmodule() {
+	"use asm";
+
+	function iter(x, y, max, r2) {
+		x = +x; y = +y; max = max|0; r2 = +r2;
+		// take a point called z in the complex plane
+		var zx = 0.0;
+		var zy = 0.0;
+		var newzx = 0.0;
+		var newzy = 0.0;
+		var i = 0;
+		var zx2 = 0.0;
+		var zy2 = 0.0;
+		zx = x;
+		zy = y;
+		zx2 = +(x * x);
+		zy2 = +(y * y);
+		do {
+			// let z0 be z^2 + z
+			newzx = +(+(zx2 - zy2) + x);
+			newzy = +(+(2.0 * +(zx * zy)) + y);
+			// and z1 be z0^2 + z, and so on
+			zx = newzx;
+			zy = newzy;
+			// if the series of zs will always stay
+			// close to z, and never trend away
+			// that point is in the Mandelbrot set
+			if ((max - (i = (i + 1)|0)) & -2147483648)
+				return i|0;
+			if (+(zx2 = +(zx * zx)) + +(zy2 = +(zy * zy)) > +r2)
+				return i|0;
+		} while (1);
+		return 0;
+	}
+
+	return {
+		iter: iter
+	};
+}
+
+var asm = asmodule();
+
 self.addEventListener('message', function(e) {
 
 	var height = e.data.height;
@@ -36,25 +78,8 @@ self.addEventListener('message', function(e) {
 	var y = yi, x, zx, zy, newzx, newzy, i, r2 = maxr * maxr, imi = 0, im = [], cols = [], px;
 	for (var u = 0; u < height; ++u) {
 		x = xi;
-		for (var v = 0; v < width; ++v) {
-			// take a point called z in the complex plane
-			zx = x;
-			zy = y;
-			i = 0;
-			do {
-				// let z0 be z^2 + z
-				newzx = zx * zx - zy * zy + x;
-				newzy = 2 * zx * zy + y;
-				// and z1 be z0^2 + z
-				zx = newzx;
-				zy = newzy;
-				// and so on
-			} while ((++i < maxcol) &&
-				(zx * zx + zy * zy < r2));
-			// if the series of zs will always stay
-			// close to z, and never trend away
-			// that point is in the Mandelbrot set
-			px = colour(i / maxcol, cols);
+		for (var v = 0; v < width; ++v) {asm
+			px = colour(asm.iter(x, y, maxcol, r2) / maxcol, cols);
 			im.push(px[0]);
 			im.push(px[1]);
 			im.push(px[2]);
