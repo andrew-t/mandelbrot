@@ -4,20 +4,20 @@ function colour(i, cache) {
 	if (cache[i])
 		return cache[i];
 	var phase = Math.floor(i * 28) % 2;
-	i = i * 28 % 1;
+	var i2 = i * 28 % 1;
 	switch (phase) {
 		case 0:
 			return cache[i] = [
-				Math.pow(i, 0.2) * 255,
-				Math.pow(i, 0.8) * 255,
-				Math.pow(i, 5) * 255,
+				Math.pow(i2, 0.2) * 255,
+				Math.pow(i2, 0.8) * 255,
+				Math.pow(i2, 5) * 255,
 				255
 			];
 		case 1:
 			return cache[i] = [
-				(1 - Math.sqrt(i)) * 255,
-				(1 - i) * 255,
-				(1 - i * i) * 255,
+				(1 - Math.sqrt(i2)) * 255,
+				(1 - i2) * 255,
+				(1 - i2 * i2) * 255,
 				255
 			];
 	}
