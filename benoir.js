@@ -24,7 +24,7 @@ function asmodule(stdlib, foreign, heap) {
 		cols = _cols;
 	}
 
-	function mandel(xi, yi, step, max, r2) {
+	function mandel(xi, yi, step, max, r2, colFactor) {
 		var y = yi, x, v, n;
 
 		i = (cols << 2) - 1;
@@ -38,7 +38,7 @@ function asmodule(stdlib, foreign, heap) {
 					H[++i] = 0;
 					H[++i] = 0;
 				} else {
-					H[++i] = H[n = ((n % cols) << 2)];
+					H[++i] = H[n = (((n * colFactor) % cols) << 2)];
 					H[++i] = H[++n];
 					H[++i] = H[++n];
 				}
@@ -96,7 +96,7 @@ self.addEventListener('message', function(e) {
 		asm.init(width, height, cols);
 	}
 
-	asm.mandel(xi, yi, step, maxcol, maxr * maxr);
+	asm.mandel(xi, yi, step, maxcol, maxr * maxr, (14 / maxcol) * cols);
 
 	self.postMessage(arr.subarray(cols4, bSize));
 
