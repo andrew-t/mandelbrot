@@ -76,7 +76,7 @@ self.addEventListener('message', function(e) {
 		buffer = new ArrayBuffer(bSize * 4);
 		arr = new Int32Array(buffer);
 		var colours = [];
-		RgbLoop.random(3).toArray(cols).forEach(function(c) {
+		colourLoop.moviePosterLoop.random().toArray(cols).forEach(function(c) {
 			c.asArray().forEach(function(d) {
 				colours.push(d);
 			});
