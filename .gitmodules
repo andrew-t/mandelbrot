@@ -1,3 +1,6 @@
 [submodule "q"]
 	path = q
 	url = https://github.com/kriskowal/q.git
+[submodule "colourloop"]
+	path = colourloop
+	url = http://github.com/andrew-t/colourloop
