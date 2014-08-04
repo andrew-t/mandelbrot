@@ -10,7 +10,14 @@ function init()
 	// initialisation
 	c = document.getElementById('can');
 	ctx = c.getContext("2d");
-	start();
+	width = $(window).width();
+	height = $(window).height();
+	c.width = width;
+	c.height = height
+	step = 2 / ((width > height) ? height : width);
+	x = -(width * 0.7) * step;
+	y = -(height / 2) * step;
+	mandel(x, y, step, maxcol, maxr).then(domandel);
 
 	// click to zoom
 	$('#can').click(function(e) {
@@ -64,17 +71,6 @@ function domandel(e) {
 	});
 	document.body.style.cursor = 'pointer';
 	calculating = false;
-}
-
-function start() {
-	width = $(window).width();
-	height = $(window).height();
-	c.width = width;
-	c.height = height
-	step = 2 / ((width > height) ? height : width);
-	x = -(width * 0.7) * step;
-	y = -(height / 2) * step;
-	mandel(x, y, step, maxcol, maxr).then(domandel);
 }
 
 function zoom(zoomlevel, origin, zoomdelay) {
