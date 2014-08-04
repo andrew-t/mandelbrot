@@ -10,22 +10,26 @@ document.addEventListener('DOMContentLoaded', function() {
 			transform = 'scale(' + zoomlevel + ')';
 		origin = origin.x + 'px ' + origin.y + 'px';
 		$('#can').css({
-			'-webkit-transform-origin': origin,
-			'-moz-transform-origin': origin,
-			'-o-transform-origin': origin,
-			'-ms-transform-origin': origin,
-			'transform-origin': origin,
-			'-webkit-transform': transform,
-			'-moz-transform': transform,
-			'-o-transform': transform,
-			'-ms-transform': transform,
-			'transform-origin': origin,
 			'-webkit-transition': '-webkit-' + transition,
 			'-moz-transition': '-moz-' + transition,
 			'-o-transition': '-o-' + transition,
 			'-ms-transition': '-ms-' + transition,
 			'transition': transition
 		});
+		setTimeout(function() {
+			$('#can').css({
+				'-webkit-transform-origin': origin,
+				'-moz-transform-origin': origin,
+				'-o-transform-origin': origin,
+				'-ms-transform-origin': origin,
+				'transform-origin': origin,
+				'-webkit-transform': transform,
+				'-moz-transform': transform,
+				'-o-transform': transform,
+				'-ms-transform': transform,
+				'transform': transform
+			});
+		}, 0);
 		return Q.delay(zoomdelay * 1000);
 	}
 
@@ -54,13 +58,16 @@ document.addEventListener('DOMContentLoaded', function() {
 			'-moz-transition': 'none',
 			'-o-transition': 'none',
 			'-ms-transition': 'none',
-			'transition': 'none',
-			'-webkit-transform': 'none',
-			'-moz-transform': 'none',
-			'-o-transform': 'none',
-			'-ms-transform': 'none',
-			'transform': 'none'
+			'transition': 'none'
 		});
+		setTimeout(function() {
+			$('#can').css({
+				'-webkit-transform': 'none',
+				'-moz-transform': 'none',
+				'-o-transform': 'none',
+				'-ms-transform': 'none',
+				'transform': 'none'
+			});
 		if (step > zoomfactor * 2 * Number.MIN_VALUE) {
 			document.body.style.cursor = 'pointer';
 			calculating = false;
