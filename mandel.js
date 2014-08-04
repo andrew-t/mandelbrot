@@ -1,25 +1,35 @@
-var c, ctx, width, height;
-var x, y, step, maxcol = 200, maxr = 5;
-var maxcolmult = 1.5, maxmaxcol = 3000;
-var timer, zoomfactor = 2, zoomdelay = 0.3; //seconds
-var calculating = false;
-var benoir = new Worker('benoir.js'), im, benoirStarted, benoirsLastJob;
+var benoir = new Worker('benoir.js'), ctx, im, benoirsLastJob;
 
 function init()
 {
+	var x, y, step, maxcol = 200, maxr = 5,
+		maxcolmult = 1.5, maxmaxcol = 3000,
+		zoomfactor = 2, zoomdelay = 0.3,
+		width, height; //seconds
+
 	// initialisation
-	c = document.getElementById('can');
+	var c = document.getElementById('can');
 	ctx = c.getContext("2d");
 	width = $(window).width();
 	height = $(window).height();
 	c.width = width;
-	c.height = height
+	c.height = height;
+	im = ctx.getImageData(0, 0, c.width, c.height);
 	step = 2 / ((width > height) ? height : width);
 	x = -(width * 0.7) * step;
 	y = -(height / 2) * step;
-	mandel(x, y, step, maxcol, maxr).then(domandel);
+	startBenoir(benoirsLastJob = {
+		height: im.height,
+		width: im.width,
+		yi: y,
+		xi: x,
+		step: step,
+		maxr: maxr,
+		maxcol: maxcol
+	}).then(domandel);
 
 	// click to zoom
+	var calculating = false;
 	$('#can').click(function(e) {
 		if (calculating) return;
 		calculating = true;
@@ -30,12 +40,24 @@ function init()
 		if (maxcol > maxmaxcol) maxcol = maxmaxcol;
 		$('#maxcol').val(Math.floor(maxcol));
 		var origin = e.pageX + 'px ' + e.pageY + 'px',
-			tform = 'transform ' + zoomdelay + 's ease-in-out';
+			tform = 'transform ' + zoomdelay + 's ease-in-out',
+			started = new Date();
 		Q.all([
-			mandel(x, y, step, maxcol, maxr),
+			startBenoir(benoirsLastJob = {
+				height: im.height,
+				width: im.width,
+				yi: y,
+				xi: x,
+				step: step,
+				maxr: maxr,
+				maxcol: maxcol
+			}),
 			zoom(zoomfactor, {x: e.pageX, y: e.pageY}, zoomdelay)
 		]).then(function(results) {
 			domandel(results[0]);
+			calculating = false;
+			zoomdelay = (new Date() - started) * 0.001;
+			console.log('frame took ' + zoomdelay + 'ms');
 		});
 		document.body.style.cursor = 'default';
 	});
@@ -52,8 +74,6 @@ function init()
 }
 
 function domandel(e) {
-	console.log(e[0]);
-	zoomdelay = (new Date() - benoirStarted) * 0.001;
 	for (var i = 0; i < im.data.length; ++i)
 		im.data[i] = e.data[i];
 	ctx.putImageData(im, 0, 0);
@@ -70,7 +90,6 @@ function domandel(e) {
 		'transform': 'none'
 	});
 	document.body.style.cursor = 'pointer';
-	calculating = false;
 }
 
 function zoom(zoomlevel, origin, zoomdelay) {
@@ -94,45 +113,27 @@ function zoom(zoomlevel, origin, zoomdelay) {
 		'-ms-transition': '-ms-' + transition,
 		'transition': transition
 	});
-	var q = Q.delay(zoomdelay);
+	var q = Q.delay(zoomdelay * 1000);
 	q.then(function() {
 	});
 	return q;
 }
 
-// asynchronously calculate the result
-function mandel(xi, yi, step, maxcol, maxr)
-{
-	im = ctx.getImageData(0, 0, c.width, c.height);
-
-	benoirsLastJob = {
-		height: im.height,
-		width: im.width,
-		yi: yi,
-		xi: xi,
-		step: step,
-		maxr: maxr,
-		maxcol: maxcol
-	};
-	return startBenoir();
-}
 function recalculate() {
 	benoirsLastJob.maxcol = maxcol;
 	benoirsLastJob.maxr = maxr;
-	return startBenoir().then(domandel);
+	return startBenoir(benoirsLastJob).then(domandel);
 }
-function startBenoir() {
+function startBenoir(job) {
 	var benoirsDeferred = Q.defer(),
 		handler = function (result) { 
-			console.log('frame took ' + (new Date() - benoirStarted) + 'ms');
 			benoirsDeferred.resolve(result); 
 		};
 	benoir.addEventListener('message', handler);
 	benoirsDeferred.promise.then(function() {
 		benoir.removeEventListener('message', handler);
 	});
-	benoirStarted = new Date();
-	benoir.postMessage(benoirsLastJob);
+	benoir.postMessage(job);
 	return benoirsDeferred.promise;
 }
 
