@@ -14,7 +14,7 @@ body {
 	position: absolute;
 	right: 10px;
 	top: 10px;
-	width: 250px;
+	width: 300px;
 	border: 1px solid black;
 	background: rgba(255, 255, 255, 0.8);
 	padding: 10px;
@@ -75,4 +75,18 @@ label {
 ::-webkit-scrollbar-thumb {
     border-radius: 0px;
     background-color: #08f;
+}
+
+#history {
+	max-height: 500px;
+	overflow: auto;
+}
+#history img {
+	width: 100%;
+}
+#history ol {
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	list-style: none;
 }
