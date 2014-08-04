@@ -68,13 +68,13 @@ label {
 }
  
 ::-webkit-scrollbar-track {
-    border-radius: 0px;
-    background-color: #8ff;
+    border-radius: 3px;
+    background-color: transparent;
 }
  
 ::-webkit-scrollbar-thumb {
-    border-radius: 0px;
-    background-color: #08f;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 #history {
