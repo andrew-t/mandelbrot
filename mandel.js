@@ -3,15 +3,11 @@ var x, y, step, maxcol = 200, maxr = 5;
 var maxcolmult = 1.5, maxmaxcol = 3000;
 var timer, zoomfactor = 2, zoomdelay = 0.3; //seconds
 var calculating = false;
-var benoir = new Worker('benoir.js'), benoirsPromise, benoirsDeferred, im, benoirStarted, benoirsLastJob;
+var benoir = new Worker('benoir.js'), im, benoirStarted, benoirsLastJob;
 
 function init()
 {
 	// initialisation
-	benoir.addEventListener('message', function (result) { 
-		console.log('frame took ' + (new Date() - benoirStarted) + 'ms');
-		benoirsDeferred.resolve(result); 
-	});
 	c = document.getElementById('can');
 	ctx = c.getContext("2d");
 	start();
@@ -28,22 +24,13 @@ function init()
 		$('#maxcol').val(Math.floor(maxcol));
 		var origin = e.pageX + 'px ' + e.pageY + 'px',
 			tform = 'transform ' + zoomdelay + 's ease-in-out';
-		$('#can').css({
-			'-webkit-transform-origin': origin,
-			'-moz-transform-origin': origin,
-			'-o-transform-origin': origin,
-			'-ms-transform-origin': origin,
-			'transform-origin': origin,
-			'-webkit-transition': '-webkit-' + tform,
-			'-moz-transition': '-moz-' + tform,
-			'-o-transition': '-o-' + tform,
-			'-ms-transition': '-ms-' + tform,
-			'transition': tform
+		Q.all([
+			mandel(x, y, step, maxcol, maxr),
+			zoom(zoomfactor, {x: e.pageX, y: e.pageY}, zoomdelay)
+		]).then(function(results) {
+			domandel(results[0]);
 		});
-		zoom(zoomfactor);
-		mandel(x, y, step, maxcol, maxr);
-		if (timer !== undefined) clearTimeout(timer);
-		timer = setTimeout(function() { domandel(); }, zoomdelay * 1000);
+		document.body.style.cursor = 'default';
 	});
 
 	// handling forms
@@ -57,6 +44,28 @@ function init()
 	$('input').change();
 }
 
+function domandel(e) {
+	console.log(e[0]);
+	zoomdelay = (new Date() - benoirStarted) * 0.001;
+	for (var i = 0; i < im.data.length; ++i)
+		im.data[i] = e.data[i];
+	ctx.putImageData(im, 0, 0);
+	$('#can').css({
+		'-webkit-transition': 'none',
+		'-moz-transition': 'none',
+		'-o-transition': 'none',
+		'-ms-transition': 'none',
+		'transition': 'none',
+		'-webkit-transform': 'none',
+		'-moz-transform': 'none',
+		'-o-transform': 'none',
+		'-ms-transform': 'none',
+		'transform': 'none'
+	});
+	document.body.style.cursor = 'pointer';
+	calculating = false;
+}
+
 function start() {
 	width = $(window).width();
 	height = $(window).height();
@@ -65,19 +74,34 @@ function start() {
 	step = 2 / ((width > height) ? height : width);
 	x = -(width * 0.7) * step;
 	y = -(height / 2) * step;
-	mandel(x, y, step, maxcol, maxr);
-	domandel();
+	mandel(x, y, step, maxcol, maxr).then(domandel);
 }
 
-function zoom(zoomlevel) {
-	var tform = 'scale(' + zoomlevel + ')';
+function zoom(zoomlevel, origin, zoomdelay) {
+	var transition = 'transform ' + zoomdelay + 's ease-in-out',
+		transform = 'scale(' + zoomlevel + ')';
+	origin = origin.x + 'px ' + origin.y + 'px';
 	$('#can').css({
-		'-webkit-transform': tform,
-		'-moz-transform': tform,
-		'-o-transform': tform,
-		'-ms-transform': tform,
-		'transform': tform
+		'-webkit-transform-origin': origin,
+		'-moz-transform-origin': origin,
+		'-o-transform-origin': origin,
+		'-ms-transform-origin': origin,
+		'transform-origin': origin,
+		'-webkit-transform': transform,
+		'-moz-transform': transform,
+		'-o-transform': transform,
+		'-ms-transform': transform,
+		'transform-origin': origin,
+		'-webkit-transition': '-webkit-' + transition,
+		'-moz-transition': '-moz-' + transition,
+		'-o-transition': '-o-' + transition,
+		'-ms-transition': '-ms-' + transition,
+		'transition': transition
 	});
+	var q = Q.delay(zoomdelay);
+	q.then(function() {
+	});
+	return q;
 }
 
 // asynchronously calculate the result
@@ -94,38 +118,27 @@ function mandel(xi, yi, step, maxcol, maxr)
 		maxr: maxr,
 		maxcol: maxcol
 	};
-	startBenoir();
+	return startBenoir();
 }
 function recalculate() {
 	benoirsLastJob.maxcol = maxcol;
 	benoirsLastJob.maxr = maxr;
-	startBenoir();
-	domandel();
+	return startBenoir().then(domandel);
 }
 function startBenoir() {
-	benoirsDeferred = Q.defer();
-	benoirsPromise = benoirsDeferred.promise;
+	var benoirsDeferred = Q.defer(),
+		handler = function (result) { 
+			console.log('frame took ' + (new Date() - benoirStarted) + 'ms');
+			benoirsDeferred.resolve(result); 
+		};
+	benoir.addEventListener('message', handler);
+	benoirsDeferred.promise.then(function() {
+		benoir.removeEventListener('message', handler);
+	});
 	benoirStarted = new Date();
 	benoir.postMessage(benoirsLastJob);
+	return benoirsDeferred.promise;
 }
-function domandel() {
-	$('#can').css({
-		'-webkit-transition': 'none',
-		'-moz-transition': 'none',
-		'-o-transition': 'none',
-		'-ms-transition': 'none',
-		'transition': 'none'
-	});
-	benoirsPromise.then(function (e) {
-		zoomdelay = (new Date() - benoirStarted) * 0.001;
-		for (var i = 0; i < im.data.length; ++i)
-			im.data[i] = e.data[i];
-		ctx.putImageData(im, 0, 0);
-		zoom(1);
-		document.body.style.cursor = 'pointer';
-		calculating = false;
-	});
-};
 
 // boring ui stuff
 function activate(panel) {

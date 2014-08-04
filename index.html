@@ -12,6 +12,7 @@
 	<div id="controls">
 		<a href="javascript:activate('settings')">Settings</a> |
 		<a href="javascript:activate('maths')">Maths</a> |
+		<a href="javascript:activate('history')">History</a> |
 		<a href="javascript:activate('none')">Close all</a> |
 		<a href="javascript:start()">Restart</a>
 		<div id="settings" class="hidden"><p><form>
@@ -45,6 +46,7 @@
 			<p>In theory there are carefully defined definitions for all this, but for the purposes of drawing it in a finite length of time, we take &lsquo;small&rsquo; to mean below five and assume that if \(z_{3000}\) is small then it's staying small forever. You can <a href="javascript:activate('settings')">change these settings</a> to suit your computer.</p>
 			<p>The Mandelbrot Set is interesting because it is a fractal: it has finite area but an infinitely long perimiter. And no matter how far you zoom in, it always looks about the same. Until, that is, you zoom in too far and the numbers become too small for your computer to work with. Then it gives up and shows you a blue screen and you have to start again.</p>
 		</div>
+		<ol id="history" class="hidden"></ol>
 	</div>
 	<script type="text/javascript">
 
