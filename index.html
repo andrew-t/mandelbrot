@@ -7,7 +7,7 @@
 	<script src="q/q.js"></script>
 	<script src="mandel.js"></script>
 	<meta http-equiv="X-UA-Compatible" content="IE=9;" />
-</head><body onLoad="init();">
+</head><body>
 	<canvas id="can"></canvas>
 	<div id="controls">
 		<a href="javascript:activate('settings')">Settings</a> |
@@ -28,7 +28,7 @@
 			<input type="text" id="zoomdelay" name="zoomdelay"><br>
 			<label for="zoomfactor">Zoom factor:</label>
 			<input type="text" id="zoomfactor" name="zoomfactor"><br>
-			<a href="javascript:recalculate()">Recalculate</a>
+			<a id="recalculate" href="#">Recalculate</a>
 		</form></p></div>
 		<div id="maths" class="hidden">
 			<p>We all know \(1 \times 1=1^2=1\). And \(-1 \times -1=(-1)^2=1\). So what's \(\sqrt{-1}\)?</p>
