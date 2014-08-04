@@ -1,4 +1,4 @@
-var benoir = new Worker('benoir.js'), ctx, im, benoirsLastJob;
+var benoir = new Worker('benoir.js'), c, ctx, im, benoirsLastJob;
 
 function init()
 {
@@ -8,7 +8,7 @@ function init()
 		width, height; //seconds
 
 	// initialisation
-	var c = document.getElementById('can');
+	c = document.getElementById('can');
 	ctx = c.getContext("2d");
 	width = $(window).width();
 	height = $(window).height();
@@ -32,6 +32,7 @@ function init()
 	var calculating = false;
 	$('#can').click(function(e) {
 		if (calculating) return;
+		$('#history ol').append('<li><img src="' + c.toDataURL() + '"></li>');
 		calculating = true;
 		step /= zoomfactor;
 		x += e.pageX * step * (zoomfactor - 1);
