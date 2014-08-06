@@ -1,8 +1,6 @@
-var benoir = new Worker('benoir.js'), c, ctx, im, benoirsLastJob;
-
-function init()
-{
-	var x, y, step, maxcol = 200, maxr = 5,
+document.addEventListener('DOMContentLoaded', function() {
+	var benoir = new Worker('benoir.js'), c, ctx, im, benoirsLastJob,
+		x, y, step, maxcol = 200, maxr = 5,
 		maxcolmult = 1.5, maxmaxcol = 3000,
 		zoomfactor = 2, zoomdelay = 0.3; //seconds
 
@@ -12,18 +10,50 @@ function init()
 	c.height = c.offsetHeight;
 	ctx = c.getContext("2d");
 	im = ctx.getImageData(0, 0, c.width, c.height);
-	step = 2 / ((c.width > c.height) ? c.height : c.width);
-	x = -(c.width * 0.7) * step;
-	y = -(c.height / 2) * step;
-	startBenoir(benoirsLastJob = {
-		height: im.height,
-		width: im.width,
-		yi: y,
-		xi: x,
-		step: step,
-		maxr: maxr,
-		maxcol: maxcol
-	}).then(domandel);
+
+	function domandel(e) {
+		im.data.set(e.data);
+		ctx.putImageData(im, 0, 0);
+		c.style.transition = 'none';
+		c.style.transform = 'none';
+		c.style.cursor = 'pointer';
+	}
+
+	function zoom(zoomlevel, origin, zoomdelay) {
+		c.style.transition = 'transform ' + zoomdelay + 's ease-in-out';
+		c.style.transform = 'scale(' + zoomlevel + ')';
+		c.style.transformOrigin = origin.x + 'px ' + origin.y + 'px';
+		return Q.delay(zoomdelay * 1000);
+	}
+
+	function startBenoir(job) {
+		var benoirsDeferred = Q.defer(),
+			handler = function (result) { 
+				benoirsDeferred.resolve(result); 
+			};
+		benoir.addEventListener('message', handler);
+		benoirsDeferred.promise.then(function() {
+			benoir.removeEventListener('message', handler);
+		});
+		benoir.postMessage(job);
+		return benoirsDeferred.promise;
+	}
+
+	function init() {
+		step = 2 / ((c.width > c.height) ? c.height : c.width);
+		x = -(c.width * 0.7) * step;
+		y = -(c.height / 2) * step;
+		startBenoir(benoirsLastJob = {
+			height: im.height,
+			width: im.width,
+			yi: y,
+			xi: x,
+			step: step,
+			maxr: maxr,
+			maxcol: maxcol
+		}).then(domandel);
+	}
+	init();
 
 	// click to zoom
 	var calculating = false, history = document.getElementById('history');
@@ -120,35 +150,4 @@ function init()
 	document.getElementById('restart').addEventListener('click', function() {
 		init();
 	});
-}
-
-function domandel(e) {
-	for (var i = 0; i < im.data.length; ++i)
-		im.data[i] = e.data[i];
-	ctx.putImageData(im, 0, 0);
-	var c = document.getElementById('can').style;
-	c.transition = 'none';
-	c.transform = 'none';
-	c.cursor = 'pointer';
-}
-
-function zoom(zoomlevel, origin, zoomdelay) {
-	var c = document.getElementById('can').style;
-	c.transition = 'transform ' + zoomdelay + 's ease-in-out';
-	c.transform = 'scale(' + zoomlevel + ')';
-	c.transformOrigin = origin.x + 'px ' + origin.y + 'px';
-	return Q.delay(zoomdelay * 1000);
-}
-
-function startBenoir(job) {
-	var benoirsDeferred = Q.defer(),
-		handler = function (result) { 
-			benoirsDeferred.resolve(result); 
-		};
-	benoir.addEventListener('message', handler);
-	benoirsDeferred.promise.then(function() {
-		benoir.removeEventListener('message', handler);
-	});
-	benoir.postMessage(job);
-	return benoirsDeferred.promise;
-}
+});

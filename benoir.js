@@ -1,6 +1,6 @@
 importScripts('colourloop/colourloop.js');
 
-function asmodule(stdlib, foreign, imdata, colours) {
+function calculatrix(foreign, imdata, colours) {
 
 	var width, height, i, cols = (colours.length >> 2);
 
@@ -70,19 +70,15 @@ self.addEventListener('message', function(e) {
 
 	if (!asm) {
 		bSize = (height * width) * 4;
-		if (bSize && 0xffff) {
-			bSize = (bSize & ~0xffff) + 0x10000;
-		}
-		buffer = new ArrayBuffer(bSize * 4);
-		arr = new Int32Array(buffer);
+		buffer = new ArrayBuffer(bSize);
+		arr = new Uint8ClampedArray(buffer);
 		var colours = [];
 		(new colourLoop.moviePosterLoop(1, .5, 0, -.1)).toArray(cols).forEach(function(c) {
 			c.asArray().forEach(function(d) {
 				colours.push(d);
 			});
 		});
-		asm = asmodule(
-			{ Math: Math, Int32Array: Int32Array },
+		asm = calculatrix(
 			{},
 			arr,
 			colours);
@@ -90,7 +86,6 @@ self.addEventListener('message', function(e) {
 	}
 
 	asm.mandel(xi, yi, step, maxcol, maxr * maxr);
-
-	self.postMessage(arr.subarray(0, bSize));
+	self.postMessage(arr);
 
 });
