@@ -55,7 +55,7 @@ function calculatrix(foreign, imdata, colours) {
 	};
 }
 
-var buffer, arr, asm, bSize;
+var arr, asm, bSize;
 var cols = 512;
 
 self.addEventListener('message', function(e) {
@@ -70,8 +70,9 @@ self.addEventListener('message', function(e) {
 
 	if (!asm) {
 		bSize = (height * width) * 4;
-		buffer = new ArrayBuffer(bSize);
-		arr = new Uint8ClampedArray(buffer);
+		// hack for IE:
+		arr = window['Uint8ClampedArray'] ? new Uint8ClampedArray(bSize) : new Int16Array(bSize);
+
 		var colours = [];
 		(new colourLoop.moviePosterLoop(1, .5, 0, -.1)).toArray(cols).forEach(function(c) {
 			c.asArray().forEach(function(d) {

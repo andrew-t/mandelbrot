@@ -12,7 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
 	im = ctx.getImageData(0, 0, c.width, c.height);
 
 	function domandel(e) {
-		im.data.set(e.data);
+		if (window['Uint8ClampedArray'])
+			im.data.set(e.data);
+		else for (var i = 0; i < im.data.length; ++i)
+			im.data[i] = e.data[i];
 		ctx.putImageData(im, 0, 0);
 		c.style.transition = 'none';
 		c.style.transform = 'none';
