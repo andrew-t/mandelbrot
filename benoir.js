@@ -71,7 +71,7 @@ self.addEventListener('message', function(e) {
 	if (!asm) {
 		bSize = (height * width) * 4;
 		// hack for IE:
-		arr = window['Uint8ClampedArray'] ? new Uint8ClampedArray(bSize) : new Int16Array(bSize);
+		arr = this['Uint8ClampedArray'] ? new Uint8ClampedArray(bSize) : new Int16Array(bSize);
 
 		var colours = [];
 		(new colourLoop.moviePosterLoop(1, .5, 0, -.1)).toArray(cols).forEach(function(c) {
