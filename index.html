@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html><head>
 	<title>andrewt.net / mandelbrot</title>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
 	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 	<link rel="stylesheet" type="text/css" href="mandel.css" />
 	<script src="q/q.js"></script>
 	<script src="mandel.js"></script>
 	<meta http-equiv="X-UA-Compatible" content="IE=9;" />
 </head><body>
-	<canvas id="can"></canvas>
+	<div id="body">
+		<canvas id="can"></canvas>
+		<a id="menu">&#x22ee;</a>
+	</div>
 	<div id="controls">
-		<a href="javascript:activate('settings')">Settings</a> |
-		<a href="javascript:activate('maths')">Maths</a> |
-		<a href="javascript:activate('history')">History</a> |
-		<a href="javascript:activate('none')">Close all</a> |
-		<a href="javascript:start()">Restart</a>
-		<div id="settings" class="hidden"><p><form>
+		<div id="tabs">
+			<a href="#" data-id="settings">Settings
+			</a><a href="#" data-id="maths">Maths
+			</a><a href="#" data-id="history" class="active">History</a>
+		</div>
+		<form id="settings" class="hidden">
 			<label for="maxcol">Maximum <abbr title="iterations">it&rsquo;ns</abbr>:</label>
 			<input type="text" id="maxcol" name="maxcol"><br>
 			<label for="maxcolmult">Max <abbr title="iterations">it&rsquo;ns</abbr> multiplier:</label>
@@ -28,8 +30,9 @@
 			<input type="text" id="zoomdelay" name="zoomdelay"><br>
 			<label for="zoomfactor">Zoom factor:</label>
 			<input type="text" id="zoomfactor" name="zoomfactor"><br>
-			<a id="recalculate" href="#">Recalculate</a>
-		</form></p></div>
+			<a id="recalculate">Recalculate</a>			
+			<a id="restart">Restart</a>
+		</form>
 		<div id="maths" class="hidden">
 			<p>We all know \(1 \times 1=1^2=1\). And \(-1 \times -1=(-1)^2=1\). So what's \(\sqrt{-1}\)?</p>
 			<p>Obviously it doesn't exist. It's a completely imaginary number &mdash; so let's all it \(i\), use it anyway and see what happens. Now we can say \(i^2=-1\), \((-i)^2=-1\) and \((2i)^2=-4\).</p>
@@ -46,9 +49,7 @@
 			<p>In theory there are carefully defined definitions for all this, but for the purposes of drawing it in a finite length of time, we take &lsquo;small&rsquo; to mean below five and assume that if \(z_{3000}\) is small then it's staying small forever. You can <a href="javascript:activate('settings')">change these settings</a> to suit your computer.</p>
 			<p>The Mandelbrot Set is interesting because it is a fractal: it has finite area but an infinitely long perimiter. And no matter how far you zoom in, it always looks about the same. Until, that is, you zoom in too far and the numbers become too small for your computer to work with. Then it gives up and shows you a blue screen and you have to start again.</p>
 		</div>
-		<div id="history" class="hidden">
-			<ol></ol>
-		</div>
+		<ol id="history"></ol>
 	</div>
 	<script type="text/javascript">
 

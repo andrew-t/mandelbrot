@@ -1,56 +1,108 @@
 body {
 	margin: 0px; padding: 0px;
 	overflow: hidden;
-	cursor: pointer;
+    font-family: sans-serif;
+}
+
+#body {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+	height: 100%;
+    width: 100%;
+    transition: left 0.5s;
+    box-shadow: -20px 0 5px 20px black;
+    z-index: 2;
+    background: black;
+}
+.menu #body {
+	left: -300px;
 }
 
 #can {
     position: absolute;
     left: 0px;
-    top: 0px
+    top: 0px;
+	height: 100%;
+    width: 100%;
+    z-index: 1;
+	cursor: pointer;
 }
 
 #controls {
 	position: absolute;
-	right: 10px;
-	top: 10px;
+	right: 0;
+	top: 0;
+	height: 100%;
 	width: 300px;
-	border: 1px solid black;
-	background: rgba(255, 255, 255, 0.8);
-	padding: 10px;
+	background: #333;
+	color: white;
+	padding: 0;
 	cursor: default;
-	opacity: 0.1;
-	-webkit-transition: opacity 0.5s ease-in-out;
-	-moz-transition: opacity 0.5s ease-in-out;
-	-o-transition: opacity 0.5s ease-in-out;
-	-ms-transition: opacity 0.5s ease-in-out;
-	transition: opacity 0.5s ease-in-out;
+    z-index: 0;
 }
-
-#controls:hover {
-	opacity: 1.0;
-}
-
-#controls > div {
+#tabs {
+	background: #888;
+	border-bottom: 1px solid black;
+	position: absolute;
+	top: 0;
 	width: 100%;
-	-webkit-transition: all 0.5s ease-in-out;
-	-moz-transition: all 0.5s ease-in-out;
-	-o-transition: all 0.5s ease-in-out;
-	-ms-transition: all 0.5s ease-in-out;
-	transition: all 0.5s ease-in-out;
+	left: 0;
+	padding: 0;
+	height: 35px;
 }
+#tabs > a {
+	padding: 5px 15px;
+	height: 25px;
+	border-right: #666 1px solid;
+	display: inline-block;
+	color: white;
+	cursor: pointer;
+	text-decoration: none;
+}
+#tabs > a:hover {
+	background-color: #aaa;
+	color: black;
+}
+#tabs > a.active {
+	background: #333;
+	color: white;
+	cursor: default;
+}
+
+#menu {
+	position: absolute;
+	background: black;
+	color: white;
+	padding: 0;
+	font-size: 25px;
+	text-align: center;
+	height: 35px;
+	width: 35px;
+    top: 20px;
+    right: 20px;
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 0.5s;
+    box-shadow: 0 1px 2px black;
+}
+#menu:hover {
+	background: white;
+	color: black;
+}
+.menu #menu {
+	opacity: 0;
+}
+
 .hidden {
-	height: 0px !important;
+	display: none;
 }
+
 #settings {
-	height: 175px;
-	overflow: hidden;
 	line-height: 18px;
 	font-size: 18px;
 }
 #maths {
-	height: 300px;
-	overflow: auto;
     padding-right: 6px;
 }
 
@@ -74,19 +126,31 @@ label {
  
 ::-webkit-scrollbar-thumb {
     border-radius: 3px;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: #000;
 }
 
-#history {
-	max-height: 500px;
+#controls > *:not(#tabs) {
+	position: absolute;
+	top: 35px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 5px 5px 5px 5px;
 	overflow: auto;
+	margin: 0;
 }
+#controls > *:not(#tabs) > a {
+	display: inline-block;
+	cursor: pointer;
+	padding: 5px;
+	background: white;
+	color: black;
+	margin: 5px;
+}
+
 #history img {
 	width: 100%;
 }
-#history ol {
-	overflow: hidden;
-	margin: 0;
-	padding: 0;
+#history  {
 	list-style: none;
 }
