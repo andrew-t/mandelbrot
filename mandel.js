@@ -4,20 +4,17 @@ function init()
 {
 	var x, y, step, maxcol = 200, maxr = 5,
 		maxcolmult = 1.5, maxmaxcol = 3000,
-		zoomfactor = 2, zoomdelay = 0.3,
-		width, height; //seconds
+		zoomfactor = 2, zoomdelay = 0.3; //seconds
 
 	// initialisation
 	c = document.getElementById('can');
+	c.width = c.offsetWidth;
+	c.height = c.offsetHeight;
 	ctx = c.getContext("2d");
-	width = $(window).width();
-	height = $(window).height();
-	c.width = width;
-	c.height = height;
 	im = ctx.getImageData(0, 0, c.width, c.height);
-	step = 2 / ((width > height) ? height : width);
-	x = -(width * 0.7) * step;
-	y = -(height / 2) * step;
+	step = 2 / ((c.width > c.height) ? c.height : c.width);
+	x = -(c.width * 0.7) * step;
+	y = -(c.height / 2) * step;
 	startBenoir(benoirsLastJob = {
 		height: im.height,
 		width: im.width,
@@ -29,17 +26,30 @@ function init()
 	}).then(domandel);
 
 	// click to zoom
-	var calculating = false;
-	$('#can').click(function(e) {
+	var calculating = false, history = document.getElementById('history');
+	document.getElementById('can').addEventListener('click', function(e) {
+		if (document.body.classList.contains('menu')) {
+			document.body.classList.remove('menu');
+			return;
+		}
+
 		if (calculating) return;
-		$('#history ol').append('<li><img src="' + c.toDataURL() + '"></li>');
 		calculating = true;
+
+		var li = document.createElement('li'),
+			img = document.createElement('img');
+		img.src = c.toDataURL();
+		li.appendChild(img);
+		history.appendChild(li);
+
 		step /= zoomfactor;
 		x += e.pageX * step * (zoomfactor - 1);
 		y += e.pageY * step * (zoomfactor - 1);
+
 		maxcol *= maxcolmult;
 		if (maxcol > maxmaxcol) maxcol = maxmaxcol;
-		$('#maxcol').val(Math.floor(maxcol));
+		document.getElementById('maxcol').value = Math.floor(maxcol);
+
 		var origin = e.pageX + 'px ' + e.pageY + 'px',
 			tform = 'transform ' + zoomdelay + 's ease-in-out',
 			started = new Date();
@@ -60,71 +70,76 @@ function init()
 			zoomdelay = (new Date() - started) * 0.001;
 			console.log('frame took ' + zoomdelay + 'ms');
 		});
-		document.body.style.cursor = 'default';
+		c.style.cursor = 'default';
 	});
 
+	function forEachChild(parent, callback) {
+		var children = parent.children;
+		for (var i = 0; i < children.length; ++i)
+			callback(children[i]);
+	}
+
 	// handling forms
-	$('input').change(function() {
-		var c = $(this).val();
-		if ($.isNumeric(c))
-			eval($(this).attr('id') +  ' = parseFloat(c);');
-		else
-			$(this).val(eval($(this).attr('id')));
+	forEachChild(document.getElementById('settings'), function(child) {
+		var handler = function() {
+			if (child.tagName === 'INPUT') {
+				if (/^[0-9]*(\.[0-9]+)?$/.test(child.value))
+					eval(child.id +  ' = parseFloat(child.value || "0");');
+				else
+					child.value = eval(child.id);
+			}
+		};
+		child.addEventListener('change', handler);
+		handler();
 	});
-	$('input').change();
+
+	document.getElementById('menu').addEventListener('click', function(e) {
+		e.preventDefault();
+		document.body.classList.toggle('menu');
+	});
+
+	forEachChild(document.getElementById('tabs'), function(node) {
+		node.addEventListener('click', function(e) {
+			e.preventDefault();
+			forEachChild(document.getElementById('controls'), function(node2) {
+				if (node2.id !== 'tabs')
+					node2.classList[node2.id === node.dataset.id ? 'remove' : 'add']('hidden');
+			});
+			forEachChild(document.getElementById('tabs'), function(node2) {
+				node2.classList[node2.dataset.id === node.dataset.id ? 'add' : 'remove']('active');
+			});
+		});
+	});
+
+	document.getElementById('recalculate').addEventListener('click', function() {
+		benoirsLastJob.maxcol = maxcol;
+		benoirsLastJob.maxr = maxr;
+		return startBenoir(benoirsLastJob).then(domandel);
+	});
+
+	document.getElementById('restart').addEventListener('click', function() {
+		init();
+	});
 }
 
 function domandel(e) {
 	for (var i = 0; i < im.data.length; ++i)
 		im.data[i] = e.data[i];
 	ctx.putImageData(im, 0, 0);
-	$('#can').css({
-		'-webkit-transition': 'none',
-		'-moz-transition': 'none',
-		'-o-transition': 'none',
-		'-ms-transition': 'none',
-		'transition': 'none',
-		'-webkit-transform': 'none',
-		'-moz-transform': 'none',
-		'-o-transform': 'none',
-		'-ms-transform': 'none',
-		'transform': 'none'
-	});
-	document.body.style.cursor = 'pointer';
+	var c = document.getElementById('can').style;
+	c.transition = 'none';
+	c.transform = 'none';
+	c.cursor = 'pointer';
 }
 
 function zoom(zoomlevel, origin, zoomdelay) {
-	var transition = 'transform ' + zoomdelay + 's ease-in-out',
-		transform = 'scale(' + zoomlevel + ')';
-	origin = origin.x + 'px ' + origin.y + 'px';
-	$('#can').css({
-		'-webkit-transform-origin': origin,
-		'-moz-transform-origin': origin,
-		'-o-transform-origin': origin,
-		'-ms-transform-origin': origin,
-		'transform-origin': origin,
-		'-webkit-transform': transform,
-		'-moz-transform': transform,
-		'-o-transform': transform,
-		'-ms-transform': transform,
-		'transform-origin': origin,
-		'-webkit-transition': '-webkit-' + transition,
-		'-moz-transition': '-moz-' + transition,
-		'-o-transition': '-o-' + transition,
-		'-ms-transition': '-ms-' + transition,
-		'transition': transition
-	});
-	var q = Q.delay(zoomdelay * 1000);
-	q.then(function() {
-	});
-	return q;
+	var c = document.getElementById('can').style;
+	c.transition = 'transform ' + zoomdelay + 's ease-in-out';
+	c.transform = 'scale(' + zoomlevel + ')';
+	c.transformOrigin = origin.x + 'px ' + origin.y + 'px';
+	return Q.delay(zoomdelay * 1000);
 }
 
-function recalculate() {
-	benoirsLastJob.maxcol = maxcol;
-	benoirsLastJob.maxr = maxr;
-	return startBenoir(benoirsLastJob).then(domandel);
-}
 function startBenoir(job) {
 	var benoirsDeferred = Q.defer(),
 		handler = function (result) { 
@@ -136,14 +151,4 @@ function startBenoir(job) {
 	});
 	benoir.postMessage(job);
 	return benoirsDeferred.promise;
-}
-
-// boring ui stuff
-function activate(panel) {
-	if ($('.shown').attr('id') == panel)
-		$('#' + panel).removeClass('shown').addClass('hidden');
-	else {
-		$('.shown').removeClass('shown').addClass('hidden');
-		$('#' + panel).removeClass('hidden').addClass('shown');
-	}
 }
