@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	forEachChild(document.getElementById('settings'), function(child) {
 		var handler = function() {
 			if (child.tagName === 'INPUT') {
-				if (/^[0-9]*(\.[0-9]+)?$/.test(child.value))
+				if (child.value && /^[0-9]*(\.[0-9]+)?$/.test(child.value))
 					eval(child.id +  ' = parseFloat(child.value || "0");');
 				else
 					child.value = eval(child.id);
