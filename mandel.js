@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		c.style.transition = 'transform ' + zoomdelay + 's ease-in-out';
 		c.style.transform = 'scale(' + zoomlevel + ')';
 		c.style.transformOrigin = origin.x + 'px ' + origin.y + 'px';
+		c.style.cursor = 'default';
 		return Q.delay(zoomdelay * 1000);
 	}
 
@@ -83,9 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (maxcol > maxmaxcol) maxcol = maxmaxcol;
 		document.getElementById('maxcol').value = Math.floor(maxcol);
 
-		var origin = e.pageX + 'px ' + e.pageY + 'px',
-			tform = 'transform ' + zoomdelay + 's ease-in-out',
-			started = new Date();
+		var started = new Date();
 		Q.all([
 			startBenoir(benoirsLastJob = {
 				height: im.height,
@@ -103,7 +102,6 @@ document.addEventListener('DOMContentLoaded', function() {
 			zoomdelay = (new Date() - started) * 0.001;
 			console.log('frame took ' + zoomdelay + 'ms');
 		});
-		c.style.cursor = 'default';
 	});
 
 	function forEachChild(parent, callback) {
