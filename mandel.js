@@ -17,12 +17,18 @@ document.addEventListener('DOMContentLoaded', function() {
 		else for (var i = 0; i < im.data.length; ++i)
 			im.data[i] = e.data[i];
 		ctx.putImageData(im, 0, 0);
+		// safari needs the -webkit- prefix.
+		c.style.webkitTransition = 'none';
+		c.style.webkitTransform = 'none';
 		c.style.transition = 'none';
 		c.style.transform = 'none';
 		c.style.cursor = 'pointer';
 	}
 
 	function zoom(zoomlevel, origin, zoomdelay) {
+		c.style.webkitTransition = '-webkit-transform ' + zoomdelay + 's ease-in-out';
+		c.style.webkitTransform = 'scale(' + zoomlevel + ')';
+		c.style.webkitTransformOrigin = origin.x + 'px ' + origin.y + 'px';
 		c.style.transition = 'transform ' + zoomdelay + 's ease-in-out';
 		c.style.transform = 'scale(' + zoomlevel + ')';
 		c.style.transformOrigin = origin.x + 'px ' + origin.y + 'px';
