@@ -4,3 +4,6 @@
 [submodule "colourloop"]
 	path = colourloop
 	url = http://github.com/andrew-t/colourloop
+[submodule "sidepanel"]
+	path = sidepanel
+	url = http://github.com/andrew-t/sidepanel

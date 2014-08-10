@@ -1,13 +1,19 @@
+var settings = {
+	maxcol: 200,
+	maxr: 5,
+	maxcolmult: 1.5,
+	maxmaxcol: 3000,
+	zoomfactor: 2,
+	zoomdelay: 0.3 //seconds
+};
+
 document.addEventListener('DOMContentLoaded', function() {
-	var benoir = new Worker('benoir.js'), c, ctx, im, benoirsLastJob,
-		x, y, step, maxcol = 200, maxr = 5,
-		maxcolmult = 1.5, maxmaxcol = 3000,
-		zoomfactor = 2, zoomdelay = 0.3; //seconds
+	var benoir = new Worker('benoir.js'), c, ctx, im, benoirsLastJob, x, y, step;
 
 	// initialisation
 	c = document.getElementById('can');
-	c.width = c.offsetWidth;
-	c.height = c.offsetHeight;
+	c.width = c.offsetWidth * (window.devicePixelRatio || 1);
+	c.height = c.offsetHeight * (window.devicePixelRatio || 1);
 	ctx = c.getContext("2d");
 	im = ctx.getImageData(0, 0, c.width, c.height);
 
@@ -25,15 +31,15 @@ document.addEventListener('DOMContentLoaded', function() {
 		c.style.cursor = 'pointer';
 	}
 
-	function zoom(zoomlevel, origin, zoomdelay) {
-		c.style.webkitTransition = '-webkit-transform ' + zoomdelay + 's ease-in-out';
+	function zoom(zoomlevel, origin) {
+		c.style.webkitTransition = '-webkit-transform ' + settings.zoomdelay + 's ease-in-out';
 		c.style.webkitTransform = 'scale(' + zoomlevel + ')';
 		c.style.webkitTransformOrigin = origin.x + 'px ' + origin.y + 'px';
-		c.style.transition = 'transform ' + zoomdelay + 's ease-in-out';
+		c.style.transition = 'transform ' + settings.zoomdelay + 's ease-in-out';
 		c.style.transform = 'scale(' + zoomlevel + ')';
 		c.style.transformOrigin = origin.x + 'px ' + origin.y + 'px';
 		c.style.cursor = 'default';
-		return Q.delay(zoomdelay * 1000);
+		return Q.delay(settings.zoomdelay * 1000);
 	}
 
 	function startBenoir(job) {
@@ -59,8 +65,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			yi: y,
 			xi: x,
 			step: step,
-			maxr: maxr,
-			maxcol: maxcol
+			maxr: settings.maxr,
+			maxcol: settings.maxcol
 		}).then(domandel);
 	}
 	init();
@@ -82,13 +88,13 @@ document.addEventListener('DOMContentLoaded', function() {
 		li.appendChild(img);
 		history.appendChild(li);
 
-		step /= zoomfactor;
-		x += e.pageX * step * (zoomfactor - 1);
-		y += e.pageY * step * (zoomfactor - 1);
+		step /= settings.zoomfactor;
+		x += e.pageX * step * (settings.zoomfactor - 1);
+		y += e.pageY * step * (settings.zoomfactor - 1);
 
-		maxcol *= maxcolmult;
-		if (maxcol > maxmaxcol) maxcol = maxmaxcol;
-		document.getElementById('maxcol').value = Math.floor(maxcol);
+		settings.maxcol *= settings.maxcolmult;
+		if (settings.maxcol > settings.maxmaxcol) settings.maxcol = settings.maxmaxcol;
+		document.getElementById('maxcol').value = Math.floor(settings.maxcol);
 
 		var started = new Date();
 		Q.all([
@@ -98,59 +104,21 @@ document.addEventListener('DOMContentLoaded', function() {
 				yi: y,
 				xi: x,
 				step: step,
-				maxr: maxr,
-				maxcol: maxcol
+				maxr: settings.maxr,
+				maxcol: settings.maxcol
 			}),
-			zoom(zoomfactor, {x: e.pageX, y: e.pageY}, zoomdelay)
+			zoom(settings.zoomfactor, {x: e.pageX, y: e.pageY})
 		]).then(function(results) {
 			domandel(results[0]);
 			calculating = false;
-			zoomdelay = (new Date() - started) * 0.001;
-			console.log('frame took ' + zoomdelay + 'ms');
-		});
-	});
-
-	function forEachChild(parent, callback) {
-		var children = parent.children;
-		for (var i = 0; i < children.length; ++i)
-			callback(children[i]);
-	}
-
-	// handling forms
-	forEachChild(document.getElementById('settings'), function(child) {
-		var handler = function() {
-			if (child.tagName === 'INPUT') {
-				if (child.value && /^[0-9]*(\.[0-9]+)?$/.test(child.value))
-					eval(child.id +  ' = parseFloat(child.value || "0");');
-				else
-					child.value = eval(child.id);
-			}
-		};
-		child.addEventListener('change', handler);
-		handler();
-	});
-
-	document.getElementById('menu').addEventListener('click', function(e) {
-		e.preventDefault();
-		document.body.classList.toggle('menu');
-	});
-
-	forEachChild(document.getElementById('tabs'), function(node) {
-		node.addEventListener('click', function(e) {
-			e.preventDefault();
-			forEachChild(document.getElementById('controls'), function(node2) {
-				if (node2.id !== 'tabs')
-					node2.classList[node2.id === node.dataset.id ? 'remove' : 'add']('hidden');
-			});
-			forEachChild(document.getElementById('tabs'), function(node2) {
-				node2.classList[node2.dataset.id === node.dataset.id ? 'add' : 'remove']('active');
-			});
+			settings.zoomdelay = (new Date() - started) * 0.001;
+			console.log('frame took ' + settings.zoomdelay + 'ms');
 		});
 	});
 
 	document.getElementById('recalculate').addEventListener('click', function() {
-		benoirsLastJob.maxcol = maxcol;
-		benoirsLastJob.maxr = maxr;
+		benoirsLastJob.maxcol = settings.maxcol;
+		benoirsLastJob.maxr = settings.maxr;
 		return startBenoir(benoirsLastJob).then(domandel);
 	});
 
