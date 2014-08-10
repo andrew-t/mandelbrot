@@ -74,12 +74,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	// click to zoom
 	var calculating = false, history = document.getElementById('history');
 	document.getElementById('can').addEventListener('click', function(e) {
-		if (document.body.classList.contains('menu')) {
-			document.body.classList.remove('menu');
+		if (calculating || document.body.classList.contains('menu'))
 			return;
-		}
-
-		if (calculating) return;
 		calculating = true;
 
 		var li = document.createElement('li'),
