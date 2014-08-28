@@ -1,3 +1,5 @@
+'use strict';
+
 var settings = {
 	maxcol: 200,
 	maxr: 5,
@@ -29,6 +31,13 @@ document.addEventListener('DOMContentLoaded', function() {
 		c.style.transition = 'none';
 		c.style.transform = 'none';
 		c.style.cursor = 'pointer';
+		calculating = false;
+		if (window.history)
+			window.history.pushState({
+				x: x,
+				y: y,
+				step: step
+			}, document.title, '#' + x + ',' + y + ',' + step);
 	}
 
 	function zoom(zoomlevel, origin) {
@@ -55,11 +64,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		return benoirsDeferred.promise;
 	}
 
-	function init() {
-		step = 2 / ((c.width > c.height) ? c.height : c.width);
-		x = -(c.width * 0.7) * step;
-		y = -(c.height / 2) * step;
-		startBenoir(benoirsLastJob = {
+	function go() {
+		return startBenoir(benoirsLastJob = {
 			height: im.height,
 			width: im.width,
 			yi: y,
@@ -69,10 +75,17 @@ document.addEventListener('DOMContentLoaded', function() {
 			maxcol: settings.maxcol
 		}).then(domandel);
 	}
+
+	function init() {
+		step = 2 / ((c.width > c.height) ? c.height : c.width);
+		x = -(c.width * 0.7) * step;
+		y = -(c.height / 2) * step;
+		return go();
+	}
 	init();
 
 	// click to zoom
-	var calculating = false, history = document.getElementById('history');
+	var calculating = true, history = document.getElementById('history');
 	document.getElementById('can').addEventListener('click', function(e) {
 		if (calculating || document.body.classList.contains('menu'))
 			return;
@@ -106,7 +119,6 @@ document.addEventListener('DOMContentLoaded', function() {
 			zoom(settings.zoomfactor, {x: e.pageX, y: e.pageY})
 		]).then(function(results) {
 			domandel(results[0]);
-			calculating = false;
 			settings.zoomdelay = (new Date() - started) * 0.001;
 			console.log('frame took ' + settings.zoomdelay + 'ms');
 		});
@@ -120,5 +132,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	document.getElementById('restart').addEventListener('click', function() {
 		init();
+	});
+
+	window.addEventListener('popstate', function(event) {
+		benoirsLastJob.xi = x = event.state.x;
+		benoirsLastJob.yi = y = event.state.y;
+		benoirsLastJob.step = step = event.state.step;
+		benoirsLastJob.maxcol = settings.maxcol;
+		benoirsLastJob.maxr = settings.maxr;
+		return startBenoir(benoirsLastJob).then(domandel);
+		go();
 	});
 });
