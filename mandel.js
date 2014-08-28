@@ -77,9 +77,18 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	function init() {
-		step = 2 / ((c.width > c.height) ? c.height : c.width);
-		x = -(c.width * 0.7) * step;
-		y = -(c.height / 2) * step;
+		try {
+			var bits = window.location.hash.substr(1).split(',');
+			x = parseFloat(bits[0]);
+			y = parseFloat(bits[1]);
+			step = parseFloat(bits[2]);
+			if (isNaN(x) || isNaN(y) || isNaN(step))
+				throw 'This is bad practice but fine for this.';
+		} catch(e) {
+			step = 2 / ((c.width > c.height) ? c.height : c.width);
+			x = -(c.width * 0.7) * step;
+			y = -(c.height / 2) * step;
+		}
 		return go();
 	}
 	init();
