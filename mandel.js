@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	ctx = c.getContext("2d");
 	im = ctx.getImageData(0, 0, c.width, c.height);
 
-	function domandel(e) {
+	function domandel(e, noPush) {
 		if (window['Uint8ClampedArray'])
 			im.data.set(e.data);
 		else for (var i = 0; i < im.data.length; ++i)
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		c.style.transform = 'none';
 		c.style.cursor = 'pointer';
 		calculating = false;
-		if (window.history)
+		if (window.history && !noPush)
 			window.history.pushState({
 				x: x,
 				y: y,
@@ -149,7 +149,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		benoirsLastJob.step = step = event.state.step;
 		benoirsLastJob.maxcol = settings.maxcol;
 		benoirsLastJob.maxr = settings.maxr;
-		return startBenoir(benoirsLastJob).then(domandel);
+		return startBenoir(benoirsLastJob).then(function(e) {
+			domandel(e, true);
+		});
 		go();
 	});
 });
