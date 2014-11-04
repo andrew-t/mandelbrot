@@ -3,7 +3,7 @@
 	url = https://github.com/kriskowal/q.git
 [submodule "colourloop"]
 	path = colourloop
-	url = http://github.com/andrew-t/colourloop
+	url = https://github.com/andrew-t/colourloop
 [submodule "sidepanel"]
 	path = sidepanel
-	url = http://github.com/andrew-t/sidepanel
+	url = https://github.com/andrew-t/sidepanel
