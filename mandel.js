@@ -107,8 +107,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		history.appendChild(li);
 
 		step /= settings.zoomfactor;
-		x += e.pageX * step * (settings.zoomfactor - 1) * c.offsetWidth / c.width;
-		y += e.pageY * step * (settings.zoomfactor - 1) * c.offsetHeight / c.height;
+		x += e.pageX * step * (settings.zoomfactor - 1) * c.width / c.offsetWidth;
+		y += e.pageY * step * (settings.zoomfactor - 1) * c.height / c.offsetHeight;
 
 		settings.maxcol *= settings.maxcolmult;
 		if (settings.maxcol > settings.maxmaxcol) settings.maxcol = settings.maxmaxcol;
