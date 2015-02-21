@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				x: x,
 				y: y,
 				step: step
-			}, document.title, '#' + x + ',' + y + ',' + step);
+			}, document.title, '#' + x + ',' + y + ',' + (step * (window.devicePixelRatio || 1)));
 	}
 
 	function zoom(zoomlevel, origin) {
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			var bits = window.location.hash.substr(1).split(',');
 			x = parseFloat(bits[0]);
 			y = parseFloat(bits[1]);
-			step = parseFloat(bits[2]);
+			step = parseFloat(bits[2]) / (window.devicePixelRatio || 1);
 			if (isNaN(x) || isNaN(y) || isNaN(step))
 				throw 'This is bad practice but fine for this.';
 		} catch(e) {
