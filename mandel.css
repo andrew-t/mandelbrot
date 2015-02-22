@@ -1,11 +1,11 @@
-#can {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-	height: 100%;
-    width: 100%;
+#complex-pane {
     z-index: 1;
-	cursor: pointer;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: auto;
 }
 
 #maths {

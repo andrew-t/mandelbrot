@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html><head>
 	<title>andrewt.net / mandelbrot</title>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.4.4/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.4.4/leaflet.js"></script>
 	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 	<link rel="stylesheet" type="text/css" href="mandel.css" />
 	<link rel="stylesheet" type="text/css" href="sidepanel/sidepanel.css" />
 	<script src="q/q.js"></script>
 	<script src="sidepanel/sidepanel.js"></script>
+	<script src="WorkerManager.js"></script>
 	<script src="mandel.js"></script>
 	<meta http-equiv="X-UA-Compatible" content="IE=9;" />
 </head><body>
 	<div id="body">
-		<canvas id="can"></canvas>
+		<div id="complex-plane"></div>
 		<a id="menu"></a>
 	</div>
 	<div id="controls">

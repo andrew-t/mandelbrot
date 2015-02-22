@@ -1,16 +1,94 @@
 'use strict';
 
 var settings = {
-	maxcol: 200,
-	maxr: 5,
-	maxcolmult: 1.5,
-	maxmaxcol: 3000,
-	zoomfactor: 2,
-	zoomdelay: 0.3 //seconds
-};
+		maxcol: 200,
+		maxr: 5,
+		maxcolmult: 1.5,
+		maxmaxcol: 3000,
+		zoomfactor: 2,
+		zoomdelay: 0.3 //seconds
+	},
+	mapDiv,
+	benoir = new WorkerManager('benoir.js');
+benoir.defaults = settings;
+
+
+function MandelbrotLayer() {
+	var _map = null, tiles = [];
+
+	function land() {
+		if (!_map)
+			throw 'Not attached to a map.';
+		var bounds = _map.getBounds(),
+			origin = _map.latLngToLayerPoint(bounds.getNorthWest()),
+			pix = window.devicePixelRatio || 1,
+			width = mapDiv.offsetWidth * pix;
+		console.log('creating tile...');
+		MandelbrotTile.create({
+			xi: origin.x,
+			yi: origin.y,
+			width: width,
+			height: mapDiv.offsetHeight * pix,
+			step: (self._map.latLngToLayerPoint(bounds.getSouthEast()).lng - origin.lng) / width
+		}).then(function(tile) {
+			console.log('created tile');
+			tiles.push(tile);
+		}).catch(function() {
+			console.log('tile failed')
+		});
+		placeDom();
+	}
+	function placeDom() {
+		if (!_map)
+			throw 'Not attached to a map.';
+		var pane = _map.getPanes().tilesPane;
+		tiles.forEach(function(tile) {
+	        var pos = _map.latLngToLayerPoint(tile.position);
+	        L.DomUtil.setPosition(tile.element, pos);
+		});
+	}
+	function removeDom() {
+		tiles.forEach(function(tile) {
+			if (tile.element)
+				tile.element.parentElement.removeChild(tile.element);
+		});
+	}
+
+	return L.Class.extend({
+		onAdd: function(map) {
+			if (_map)
+				throw 'Already attached to a map.';
+			if (!map)
+				throw 'No map provided';
+			console.log('attaching to map');
+			_map = map;
+			map.on('viewreset', land);
+			land();
+		},
+		onRemove: function(map) {
+			if (_map !== map)
+				throw 'Not attached to `map`.';
+			console.log('detaching from  map');
+			map.off('viewreset', land);
+			removeDom();
+			_map = null;
+		}
+	});
+}
 
 document.addEventListener('DOMContentLoaded', function() {
 	var benoir = new Worker('benoir.js'), c, ctx, im, benoirsLastJob, x, y, step;
+
+	mapDiv = document.getElementById('complex-plane');
+
+		var complexPlane = L.map(mapDiv, {
+		    center: [0, 0],
+		    zoom: 1,
+		    //crs: L.CRS.Simple
+		});
+
+		complexPlane.addLayer(new MandelbrotLayer());
+	return;
 
 	// initialisation
 	c = document.getElementById('can');
