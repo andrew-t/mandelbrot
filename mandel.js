@@ -93,18 +93,30 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 	init();
 
-	// click to zoom
-	var calculating = true, history = document.getElementById('history');
-	document.getElementById('can').addEventListener('click', function(e) {
-		if (calculating || document.body.classList.contains('menu'))
-			return;
-		calculating = true;
-
+	function pushHistory() {
 		var li = document.createElement('li'),
 			img = document.createElement('img');
 		img.src = c.toDataURL();
 		li.appendChild(img);
 		history.appendChild(li);
+	}
+
+	// click to zoom
+	var calculating = true, history = document.getElementById('history');
+	document.getElementById('can').addEventListener('click', zoomIn);
+	document.getElementById('can').addEventListener('contextmenu', zoomOut);
+
+	function zoomIn(e) {
+		if (e.which == 2)
+			return zoomOut(e);
+
+		if (calculating ||
+			e.which != 1 ||
+			document.body.classList.contains('menu'))
+			return;
+		calculating = true;
+
+		pushHistory();
 
 		step /= settings.zoomfactor;
 		x += e.pageX * step * (settings.zoomfactor - 1) * c.width / c.offsetWidth;
@@ -114,6 +126,30 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (settings.maxcol > settings.maxmaxcol) settings.maxcol = settings.maxmaxcol;
 		document.getElementById('maxcol').value = Math.floor(settings.maxcol);
 
+		triggerBenoir(e, false);
+	}
+
+	function zoomOut(e) {
+		if (calculating ||
+			document.body.classList.contains('menu'))
+			return;
+		calculating = true;
+		e.preventDefault();
+
+		pushHistory();
+
+		step *= settings.zoomfactor;
+		x += e.pageX * step * (1 / settings.zoomfactor - 1) * c.width / c.offsetWidth;
+		y += e.pageY * step * (1 / settings.zoomfactor - 1) * c.height / c.offsetHeight;
+
+		// TODO - fix up this maxcol business.
+		settings.maxcol /= settings.maxcolmult;
+		document.getElementById('maxcol').value = Math.floor(settings.maxcol);
+
+		triggerBenoir(e, true);
+	}
+
+	function triggerBenoir(e, out) {
 		var started = new Date();
 		Q.all([
 			startBenoir(benoirsLastJob = {
@@ -125,13 +161,14 @@ document.addEventListener('DOMContentLoaded', function() {
 				maxr: settings.maxr,
 				maxcol: settings.maxcol
 			}),
-			zoom(settings.zoomfactor, {x: e.pageX, y: e.pageY})
+			zoom(out ? 1 / settings.zoomfactor : settings.zoomfactor,
+				{x: e.pageX, y: e.pageY})
 		]).then(function(results) {
 			domandel(results[0]);
 			settings.zoomdelay = (new Date() - started) * 0.001;
 			console.log('frame took ' + settings.zoomdelay + 'ms');
 		});
-	});
+	}
 
 	document.getElementById('recalculate').addEventListener('click', function() {
 		benoirsLastJob.maxcol = settings.maxcol;
