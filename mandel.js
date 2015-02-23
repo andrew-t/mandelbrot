@@ -11,83 +11,33 @@ var settings = {
 	mapDiv,
 	benoir = new WorkerManager('benoir.js');
 benoir.defaults = settings;
-
-
-function MandelbrotLayer() {
-	var _map = null, tiles = [];
-
-	function land() {
-		if (!_map)
-			throw 'Not attached to a map.';
-		var bounds = _map.getBounds(),
-			origin = _map.latLngToLayerPoint(bounds.getNorthWest()),
-			pix = window.devicePixelRatio || 1,
-			width = mapDiv.offsetWidth * pix;
-		console.log('creating tile...');
-		MandelbrotTile.create({
-			xi: origin.x,
-			yi: origin.y,
-			width: width,
-			height: mapDiv.offsetHeight * pix,
-			step: (self._map.latLngToLayerPoint(bounds.getSouthEast()).lng - origin.lng) / width
-		}).then(function(tile) {
-			console.log('created tile');
-			tiles.push(tile);
-		}).catch(function() {
-			console.log('tile failed')
-		});
-		placeDom();
-	}
-	function placeDom() {
-		if (!_map)
-			throw 'Not attached to a map.';
-		var pane = _map.getPanes().tilesPane;
-		tiles.forEach(function(tile) {
-	        var pos = _map.latLngToLayerPoint(tile.position);
-	        L.DomUtil.setPosition(tile.element, pos);
-		});
-	}
-	function removeDom() {
-		tiles.forEach(function(tile) {
-			if (tile.element)
-				tile.element.parentElement.removeChild(tile.element);
-		});
-	}
-
-	return L.Class.extend({
-		onAdd: function(map) {
-			if (_map)
-				throw 'Already attached to a map.';
-			if (!map)
-				throw 'No map provided';
-			console.log('attaching to map');
-			_map = map;
-			map.on('viewreset', land);
-			land();
-		},
-		onRemove: function(map) {
-			if (_map !== map)
-				throw 'Not attached to `map`.';
-			console.log('detaching from  map');
-			map.off('viewreset', land);
-			removeDom();
-			_map = null;
-		}
-	});
-}
+benoir.maxQueueLength = 100;
 
 document.addEventListener('DOMContentLoaded', function() {
 	var benoir = new Worker('benoir.js'), c, ctx, im, benoirsLastJob, x, y, step;
 
 	mapDiv = document.getElementById('complex-plane');
 
-		var complexPlane = L.map(mapDiv, {
-		    center: [0, 0],
-		    zoom: 1,
-		    //crs: L.CRS.Simple
-		});
+	var layer = L.tileLayer.canvas({ async: true });
+	layer.drawTile = function(canvas, tilePoint, zoom) {
+	    var ctx = canvas.getContext('2d');
+	    benoir.do({
+	    	x: 0,
+	    	y: 0,
+	    	step: 0.001
+	    }).then(function(arr) {
+	    	ctx.putImageData(arr, 0, 0);
+	    	layer.tileDrawn();
+	    });
+	}
 
-		complexPlane.addLayer(new MandelbrotLayer());
+	var complexPlane = L.map(mapDiv, {
+	    center: [0, 0],
+	    zoom: 1,
+	    //crs: L.CRS.Simple
+	});
+
+	complexPlane.addLayer(layer);
 	return;
 
 	// initialisation
@@ -114,7 +64,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			window.history.pushState({
 				x: x,
 				y: y,
-				step: step
+				step: step,
+				height: 300,
+				width: 300
 			}, document.title, '#' + x + ',' + y + ',' + (step * (window.devicePixelRatio || 1)));
 	}
 
