@@ -1,5 +1,6 @@
 importScripts('colourloop/colourloop.js');
 
+		self.postMessage({ debug: true, message: 'worker init' });
 function calculatrix(foreign, imdata, colours) {
 
 	var width, height, i, cols = (colours.length >> 2);
@@ -26,6 +27,11 @@ function calculatrix(foreign, imdata, colours) {
 
 	function mandel(xi, yi, step, max, r2) {
 		var y = yi, x, v, n;
+
+		for (var xxx = 0; xxx < arguments.length; ++xxx)
+		self.postMessage({ debug: true,
+		 message: 'worker arg ' + xxx + '=' + arguments[xxx] });
+
 
 		i = -1;
 		y = yi;
@@ -59,6 +65,7 @@ var arr, asm, bSize;
 var cols = 512;
 
 self.addEventListener('message', function(e) {
+		self.postMessage({ debug: true, message: 'worker start' });
 
 	var height = e.data.height;
 	var width = e.data.width;
@@ -85,8 +92,13 @@ self.addEventListener('message', function(e) {
 			colours);
 		asm.init(width, height);
 	}
-
+try {
 	asm.mandel(xi, yi, step, maxcol, maxr * maxr);
+		self.postMessage({ debug: true, message: 'worker return' });
 	self.postMessage(arr);
+} catch (e) {
+
+		self.postMessage({ debug: true, message: 'worker error' + e.toString() });
+}
 
 });

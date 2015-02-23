@@ -1,9 +1,14 @@
 function WorkerManager(fn) {
 	var worker = new Worker(fn),
 		processing = false,
-		queue = [];
+		queue = [],
+		self = this;
 	this.maxQueueLength = 1;
 	this.defaults = {};
+	worker.addEventListener('message', function(e) {
+		if (e.data.debug)
+			console.log(e.data.message);
+	});
 
 	this.do = function(params) {
 		var task = {
@@ -25,6 +30,8 @@ function WorkerManager(fn) {
 	function run(task) {
 		processing = true;
 		var handler = function(e) {
+			if (e.data.debug)
+				return;
 			console.log('returned');
 			worker.removeEventListener('message', handler);
 			processing = false;
@@ -34,7 +41,7 @@ function WorkerManager(fn) {
 		};
 		worker.addEventListener('message', handler);
 		for (key in self.defaults)
-			if (task.params[key] === undefined)
+			if (!task.params.hasOwnProperty(key))
 				task.params[key] = self.defaults[key];
 		console.log('calling worker');
 		worker.postMessage(task.params);

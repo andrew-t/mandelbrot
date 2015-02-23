@@ -14,20 +14,32 @@ benoir.defaults = settings;
 benoir.maxQueueLength = 100;
 
 document.addEventListener('DOMContentLoaded', function() {
-	var benoir = new Worker('benoir.js'), c, ctx, im, benoirsLastJob, x, y, step;
+	//var benoir = new Worker('benoir.js'), c, ctx, im, benoirsLastJob, x, y, step;
 
 	mapDiv = document.getElementById('complex-plane');
 
 	var layer = L.tileLayer.canvas({ async: true });
 	layer.drawTile = function(canvas, tilePoint, zoom) {
-	    var ctx = canvas.getContext('2d');
 	    benoir.do({
-	    	x: 0,
-	    	y: 0,
-	    	step: 0.001
+	    	xi: 0,
+	    	yi: 0,
+	    	step: 0.01,
+	    	width: canvas.width,
+	    	height: canvas.height
 	    }).then(function(arr) {
-	    	ctx.putImageData(arr, 0, 0);
-	    	layer.tileDrawn();
+	    	console.log('getting context');
+	    	var ctx = canvas.getContext('2d'),
+	    		im = ctx.getImageData(0, 0, canvas.width, canvas.height);
+	    	console.log('pasting data');
+			if (window['Uint8ClampedArray'])
+				im.data.set(arr);
+			else for (var i = 0; i < im.data.length; ++i)
+				im.data[i] = arr[i];
+	    	console.log('putting image');
+	    	ctx.putImageData(im, 0, 0);
+	    	console.log('calling drawn...');
+	    	layer.tileDrawn(canvas);
+	    	console.log('drawn');
 	    });
 	}
 
