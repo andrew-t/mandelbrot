@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	layer.drawTile = function(canvas, tilePoint, zoom) {
 		zoom = complexPlane.getZoom();
-		console.log('drawing ' + tilePoint.x + ',' + tilePoint.y + ' @ ' + zoom);
 		var side = settings.tileSide / Math.pow(settings.zoomfactor, zoom);
 	    benoir.do({
 	    	xi: tilePoint.x * side,
@@ -29,19 +28,14 @@ document.addEventListener('DOMContentLoaded', function() {
 	    	width: canvas.width,
 	    	height: canvas.height
 	    }).then(function(arr) {
-	    	console.log('getting context');
 	    	var ctx = canvas.getContext('2d'),
 	    		im = ctx.getImageData(0, 0, canvas.width, canvas.height);
-	    	console.log('pasting data');
 			if (window['Uint8ClampedArray'])
 				im.data.set(arr);
 			else for (var i = 0; i < im.data.length; ++i)
 				im.data[i] = arr[i];
-	    	console.log('putting image');
 	    	ctx.putImageData(im, 0, 0);
-	    	console.log('calling drawn...');
 	    	layer.tileDrawn(canvas);
-	    	console.log('drawn');
 	    });
 	}
 
