@@ -1,8 +1,9 @@
-function WorkerManager(fn) {
+function WorkerManager(fn, options) {
 	var worker = new Worker(fn),
 		processing = false,
 		queue = [],
 		self = this;
+	if (!options) options = {};
 	this.maxQueueLength = 1;
 	this.defaults = {};
 	worker.addEventListener('message', function(e) {
@@ -35,7 +36,7 @@ function WorkerManager(fn) {
 			worker.removeEventListener('message', handler);
 			processing = false;
 			if (queue.length)
-				run(queue.shift());
+				run(queue[options.stack ? 'pop' : 'shift']());
 			task.d.resolve(e.data);
 		};
 		worker.addEventListener('message', handler);

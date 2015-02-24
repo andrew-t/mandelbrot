@@ -7,7 +7,7 @@ var settings = {
 		tileSide: 0.4,
 		tileSize: 256
 	},
-	benoir = new WorkerManager('benoir.js');
+	benoir = new WorkerManager('benoir.js', { stack: true });
 benoir.defaults = settings;
 
 document.addEventListener('DOMContentLoaded', function() {
