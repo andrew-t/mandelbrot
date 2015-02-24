@@ -32,7 +32,6 @@ function WorkerManager(fn) {
 		var handler = function(e) {
 			if (e.data.debug)
 				return;
-			console.log('returned');
 			worker.removeEventListener('message', handler);
 			processing = false;
 			if (queue.length)
@@ -43,7 +42,6 @@ function WorkerManager(fn) {
 		for (key in self.defaults)
 			if (!task.params.hasOwnProperty(key))
 				task.params[key] = self.defaults[key];
-		console.log('calling worker');
 		worker.postMessage(task.params);
 		return task.d.promise;
 	}
