@@ -46,9 +46,5 @@ function WorkerManager(fn, options) {
 		worker.postMessage(task.params);
 		return task.d.promise;
 	}
-
-	function extend(a, b) {
-		return a;
-	}
 }
 WorkerManager.QueueFull = {};

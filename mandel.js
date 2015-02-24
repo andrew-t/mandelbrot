@@ -2,8 +2,9 @@
 
 var settings = {
 		maxr: 5,
-		maxcol: 3000,
-		zoomfactor: 2,
+		maxcol: 200,
+		maxcolmult: 2,
+		maxmaxcol: 3000,
 		tileSide: 0.4,
 		tileSize: 256
 	},
@@ -23,13 +24,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	layer.drawTile = function(canvas, tilePoint, zoom) {
 		zoom = complexPlane.getZoom();
-		var side = settings.tileSide / Math.pow(settings.zoomfactor, zoom);
+		var side = settings.tileSide / Math.pow(2, zoom),
+			maxcol = settings.maxcol * Math.pow(settings.maxcolmult, zoom);
 	    benoir.do({
 	    	xi: tilePoint.x * side,
 	    	yi: tilePoint.y * side,
 	    	step: side / canvas.width,
 	    	width: canvas.width,
-	    	height: canvas.height
+	    	height: canvas.height,
+	    	maxcol: (maxcol > settings.maxmaxcol) ? settings.maxmaxcol : maxcol
 	    }).then(function(arr) {
 	    	var ctx = canvas.getContext('2d'),
 	    		im = ctx.getImageData(0, 0, canvas.width, canvas.height);
