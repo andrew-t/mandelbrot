@@ -20,7 +20,7 @@ function WorkerManager(fn) {
 		else {
 			// If the queue is full, kill the oldest task.
 			if (queue.length >= this.maxQueueLength)
-				queue.shift().d.reject(Benoir.QueueFull);
+				queue.shift().d.reject(WorkerManager.QueueFull);
 			// Enqueue our new task.
 			queue.push(task);
 		}

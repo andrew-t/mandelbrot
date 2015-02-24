@@ -4,21 +4,23 @@ var settings = {
 		maxr: 5,
 		maxcol: 3000,
 		zoomfactor: 2,
-		tileSide: 1
+		tileSide: 0.4,
+		tileSize: 256
 	},
 	benoir = new WorkerManager('benoir.js');
 benoir.defaults = settings;
-benoir.maxQueueLength = 100;
 
 document.addEventListener('DOMContentLoaded', function() {
 	var mapDiv = document.getElementById('complex-plane'),
 		layer = L.tileLayer.canvas({
 			async: true,
 			continuousWorld: true,
-			noWrap: true,
 			detectRetina: true,
-			attribution: 'http://www.andrewt.net'
+			attribution: '<a href="http://www.andrewt.net">andrewt.net</a>'
 		});
+
+	benoir.maxQueueLength = 2 * mapDiv.offsetWidth * mapDiv.offsetHeight / (settings.tileSize * settings.tileSize);
+
 	layer.drawTile = function(canvas, tilePoint, zoom) {
 		zoom = complexPlane.getZoom();
 		var side = settings.tileSide / Math.pow(settings.zoomfactor, zoom);
@@ -57,7 +59,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	var complexPlane = L.map(mapDiv, {
 	    center: [0, 0],
 	    zoom: 0,
-	    crs: L.CRS.Simple
+	    crs: L.CRS.Simple,
+	    worldCopyJump: false
 	});
 
 	complexPlane.addLayer(layer);
