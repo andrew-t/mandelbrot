@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				x: x,
 				y: y,
 				step: step
-			}, document.title, '#' + x + ',' + y + ',' + (step * (window.devicePixelRatio || 1)));
+			}, document.title, '#x=' + x + '#y=' + y + '#r=' + (step * c.width / 2));
 	}
 
 	function zoom(zoomlevel, origin) {
@@ -77,18 +77,21 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	function init() {
-		try {
-			var bits = window.location.hash.substr(1).split(',');
-			x = parseFloat(bits[0]);
-			y = parseFloat(bits[1]);
-			step = parseFloat(bits[2]) / (window.devicePixelRatio || 1);
-			if (isNaN(x) || isNaN(y) || isNaN(step))
-				throw 'This is bad practice but fine for this.';
-		} catch(e) {
-			step = 2 / ((c.width > c.height) ? c.height : c.width);
-			x = -(c.width * 0.7) * step;
-			y = -(c.height / 2) * step;
-		}
+		x = 0.7;
+		y = 0;
+		step = 4 / c.width;
+		if (location.hash)
+			location.hash.split('#').forEach(function(bit) {
+				var split = bit.indexOf('=');
+				if (~split) {
+					var value = bit.substr(split + 1);
+					switch (bit.substr(0, split)) {
+						case 'x': x = value; break;
+						case 'y': y = value; break;
+						case 'r': step = 2 * value / c.width; break;
+					}
+				}
+			});
 		return go();
 	}
 	init();
