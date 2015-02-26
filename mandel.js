@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
 		layer = L.tileLayer.canvas({
 			async: true,
 			continuousWorld: true,
-			detectRetina: true,
 			attribution: '<a href="http://www.andrewt.net">andrewt.net</a>',
 			maxZoom: 42,
 			maxNativeZoom: 40
@@ -27,9 +26,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	layer.drawTile = function(canvas, tilePoint, zoom) {
 		// Not sure why zoom wasn't being passed in...
+		console.log(zoom)
 		zoom = complexPlane.getZoom();
 		var side = settings.tileSide / Math.pow(2, zoom),
 			maxcol = settings.maxcol * Math.pow(settings.maxcolmult, zoom);
+    	if (window.devicePixelRatio != undefined) {
+	    	canvas.width = canvas.height = settings.tileSize * window.devicePixelRatio;
+	    	canvas.style.width = canvas.style.height = settings.tileSize + 'px';
+	    }
 	    benoir.do({
 	    	xi: tilePoint.x * side,
 	    	yi: tilePoint.y * side,
