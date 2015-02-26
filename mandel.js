@@ -5,7 +5,7 @@ var settings = {
 		maxcol: 200,
 		maxcolmult: 2,
 		maxmaxcol: 3000,
-		tileSide: 1,
+		tileSide: 5,
 		tileSize: 256
 	},
 	benoir = new WorkerManager('benoir.js', { stack: true });
@@ -18,7 +18,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			continuousWorld: true,
 			attribution: '<a href="http://www.andrewt.net">andrewt.net</a>',
 			maxZoom: 42,
-			maxNativeZoom: 40
+			maxNativeZoom: 40,
+		    bounds: L.latLngBounds(L.latLng(-Infinity, -1e30), L.latLng(Infinity, 1e30))
 		});
 
 	// Allow up to N entire scenes to render sequentially.
@@ -26,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	layer.drawTile = function(canvas, tilePoint, zoom) {
 		// Not sure why zoom wasn't being passed in...
-		console.log(zoom)
 		zoom = complexPlane.getZoom();
 		var side = settings.tileSide / Math.pow(2, zoom),
 			maxcol = settings.maxcol * Math.pow(settings.maxcolmult, zoom);
@@ -69,24 +69,26 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		});
 
-	console.log('Requested (' + center[0] + ', ' + center[1] + '), r = ' + r);
-
 	var screenR = mapDiv.offsetWidth > mapDiv.offsetHeight
 			? mapDiv.offsetWidth
 			: mapDiv.offsetHeight,
-		zoom = Math.floor(Math.log2((settings.tileSide / r) / (settings.tileSize / screenR)));
-	for (var i = 0; i < 2; ++i)
-		center[i] *= -settings.tileSize / settings.tileSide;
-
-	console.log('Using [' + center[0] + ', ' + center[1] + '], zoom = ' + zoom);
-
-	// Initialise:
-	var complexPlane = L.map(mapDiv, {
-	    center: center,
-	    zoom: zoom,
-	    worldCopyJump: false,
-	    crs: simple(),
-	    bounds: L.latLngBounds(L.latLng(-Infinity, -1e30), L.latLng(Infinity, 1e30))
-	});
+		zoom = Math.floor(Math.log2((settings.tileSide / r) / (settings.tileSize / screenR))),
+		pxRatio = settings.tileSize / settings.tileSide,
+		complexPlane = L.map(mapDiv, {
+		    center: center.map(function (x) { return x * pxRatio }),
+		    zoom: zoom,
+		    worldCopyJump: false,
+		    crs: simple()
+		});
 	complexPlane.addLayer(layer);
+
+	complexPlane.on('move', function(e) {
+		var center = complexPlane.getCenter(),
+			zoom = (1 << complexPlane.getZoom());
+		document.getElementById('permalink').href =
+			'#x=' + (center.lng / pxRatio) + 
+			'#y=' + (center.lat / pxRatio) + 
+			'#r=' + (settings.tileSide * screenR /
+				(settings.tileSize * zoom));
+	});
 });
