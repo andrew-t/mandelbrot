@@ -1,8 +1,8 @@
 [submodule "leaflet"]
 	path = leaflet
-	url = git@github.com:andrew-t/mandelbrot.git
+	url = http://github.com/andrew-t/mandelbrot.git
 	branch = leaflet
 [submodule "original"]
 	path = original
-	url = git@github.com:andrew-t/mandelbrot.git
+	url = http://github.com/andrew-t/mandelbrot.git
 	branch = master
