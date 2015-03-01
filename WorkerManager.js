@@ -1,23 +1,31 @@
 function WorkerManager(fn, options) {
-	var worker = new Worker(fn),
-		processing = false,
+	var workers = [],
 		queue = [],
 		self = this;
 	if (!options) options = {};
 	this.maxQueueLength = 1;
 	this.defaults = {};
-	worker.addEventListener('message', function(e) {
-		if (e.data.debug)
-			console.log(e.data.message);
-	});
+	for (var i = 0; i < (options.threads  || 1); ++i) {
+		var worker = new Worker(fn);
+		worker.addEventListener('message', function(e) {
+			if (e.data.debug)
+				console.log(e.data.message);
+		});
+		worker.busy = false;
+		workers.push(worker);
+	}
 
 	this.do = function(params) {
 		var task = {
 				params: params,
 				d: Q.defer()
-			};
-		if (!processing)
-			run(task);
+			},
+			worker;
+		for (var i = 0; i < workers.length; ++i)
+			if (!workers[i].busy)
+				worker = workers[i];
+		if (worker)
+			run(task, worker);
 		else {
 			// If the queue is full, kill the oldest task.
 			if (queue.length >= this.maxQueueLength)
@@ -28,15 +36,15 @@ function WorkerManager(fn, options) {
 		return task.d.promise;
 	}
 
-	function run(task) {
-		processing = true;
+	function run(task, worker) {
+		worker.busy = true;
 		var handler = function(e) {
 			if (e.data.debug)
 				return;
 			worker.removeEventListener('message', handler);
-			processing = false;
+			worker.busy = false;
 			if (queue.length)
-				run(queue[options.stack ? 'pop' : 'shift']());
+				run(queue[options.stack ? 'pop' : 'shift'](), worker);
 			task.d.resolve(e.data);
 		};
 		worker.addEventListener('message', handler);
