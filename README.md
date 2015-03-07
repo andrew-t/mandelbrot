@@ -13,7 +13,7 @@ The original version is at [http://github.andrewt.net/mandelbrot/original](http:
 
 ### Leaflet.js
 
-The new version is at [http://github.andrewt.net/mandelbrot/leaflet](http://github.andrewt.net/mandelbrot/leaflet). This version uses Leaflet.js to give a Google Maps-style experience. Because Leaflet operates with many small 'tiles' rather than one large image, multiple workers are spun up to boost performance on multi-code machines (see below).
+The new version is at [http://github.andrewt.net/mandelbrot/leaflet](http://github.andrewt.net/mandelbrot/leaflet). This version uses Leaflet.js to give a Google Maps-style experience. Because Leaflet operates with many small 'tiles' rather than one large image, multiple workers are spun up to boost performance on multi-core machines (see below).
 
 ## Performance stats
 
