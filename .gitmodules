@@ -6,3 +6,7 @@
 	path = original
 	url = https://github.com/andrew-t/mandelbrot.git
 	branch = master
+[submodule "shader-leaflet"]
+	path = shader-leaflet
+	url = https://github.com/andrew-t/mandelbrot.git
+	branch = shader-leaflet
