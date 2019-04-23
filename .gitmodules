@@ -7,3 +7,6 @@
 [submodule "sidepanel"]
 	path = sidepanel
 	url = https://github.com/andrew-t/sidepanel
+[submodule "glslCanvas"]
+	path = glslCanvas
+	url = https://github.com/patriciogonzalezvivo/glslCanvas.git
