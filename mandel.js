@@ -2,9 +2,9 @@
 
 const mandelSettings = {
 	maxr: 5,
-	maxcol: 1000,
-	maxcolmult: 2,
-	maxmaxcol: 20000,
+	maxcol: 700,
+	maxcolmult: 1.5,
+	maxmaxcol: 10000,
 	tileSide: 5,
 	tileSize: 256
 };
@@ -110,8 +110,24 @@ void main() {
 	vec2 z = c;
 	for (float iters = 0.0; iters < 1000000000.; ++iters) {
 		if (dot(z, z) > 4.0) {
-			// todo: colours:
-			gl_FragColor = vec4(1.0);
+
+			float c = mod(iters / 100.0, 2.0);
+			if (c > 1.0) {
+				c -= 1.0;
+				gl_FragColor = vec4(
+					1.0 - pow(c, 2.0),
+					1.0 - c,
+					0.2 + 0.8 * (1.0 - c),
+					1.0);
+			}
+			else {
+				gl_FragColor = vec4(
+					pow(c, 2.0),
+					c,
+					0.2 + 0.8 * c,
+					1.0);
+			}
+
 			return;
 		}
 
