@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const glsl = `
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 uniform float u_xi; // start point x
@@ -99,19 +99,17 @@ uniform float u_side;
 uniform float u_width;
 uniform float u_height;
 uniform float u_maxcol; // maxiters i guess
-uniform vec2 u_resolution;
-uniform float u_time;
+// uniform vec2 u_resolution;
+// uniform float u_time;
 
 void main() {
-	vec2 st = gl_FragCoord.xy / u_resolution.xy;
-
 	vec2 c = vec2(u_xi, -u_yi) + (gl_FragCoord.xy - vec2(0., u_height)) * u_step;
 
 	vec2 z = c;
 	for (float iters = 0.0; iters < 1000000000.; ++iters) {
 		if (dot(z, z) > 4.0) {
 
-			float c = mod(iters / 100.0, 2.0);
+			float c = mod(iters / 20.0, 2.0);
 			if (c > 1.0) {
 				c -= 1.0;
 				gl_FragColor = vec4(
@@ -137,7 +135,7 @@ void main() {
 		) + c;
 
 		if (iters > u_maxcol) {
-			gl_FragColor = vec4(sin(u_time * 0.002), 0., 0., 1.0);
+			gl_FragColor = vec4(0., 0., 0., 1.0);
 			return;
 		}
 	}
