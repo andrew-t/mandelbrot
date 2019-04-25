@@ -1,5 +1,7 @@
 'use strict';
 
+const scale = 2 ** 48;
+
 const glsl = `
 #ifdef GL_ES
 precision highp float;
@@ -15,12 +17,14 @@ uniform float u_maxcol; // maxiters i guess
 // uniform vec2 u_resolution;
 // uniform float u_time;
 
+const float r = 4.0 * ${scale}.0 * ${scale}.0;
+
 void main() {
 	vec2 c = vec2(u_xi, -u_yi) + (gl_FragCoord.xy - vec2(0., u_height)) * u_step;
 
 	vec2 z = c;
 	for (float iters = 0.0; iters < 1000000000.; ++iters) {
-		if (dot(z, z) > 4.0) {
+		if (dot(z, z) > r) {
 
 			float c = mod(iters / 20.0, 2.0);
 			if (c > 1.0) {
@@ -45,7 +49,7 @@ void main() {
 		z = vec2(
 			z.x * z.x - z.y * z.y,
 			2.0 * z.x * z.y
-		) + c;
+		) / ${scale}.0 + c;
 
 		if (iters > u_maxcol) {
 			gl_FragColor = vec4(0., 0., 0., 1.0);
@@ -58,8 +62,8 @@ void main() {
 
 const mandelSettings = {
 	maxr: 2,
-	maxcol: 700,
-	maxcolmult: 1.5,
+	maxcol: 1000,
+	maxcolmult: 2,
 	maxmaxcol: 10000,
 	tileSide: 5,
 	tileSize: 256
@@ -128,13 +132,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		enqueueRender(({ shader, canvas }) => {
-			shader.setUniform('u_xi', tilePoint.x * side);
-			shader.setUniform('u_yi', tilePoint.y * side);
-			shader.setUniform('u_step', side / tileCanvas.width);
-			shader.setUniform('u_side', side);
-			shader.setUniform('u_maxcol', (maxcol > mandelSettings.maxmaxcol)
-				? mandelSettings.maxmaxcol
-				: maxcol);
+			shader.setUniform('u_xi',
+				tilePoint.x * side * scale);
+			shader.setUniform('u_yi',
+				tilePoint.y * side * scale);
+			shader.setUniform('u_step',
+				side * scale / tileCanvas.width);
+			shader.setUniform('u_side',
+				side * scale);
+			shader.setUniform('u_maxcol',
+				(maxcol > mandelSettings.maxmaxcol)
+					? mandelSettings.maxmaxcol
+					: maxcol);
 			shader.on('render', finalise);
 			shader.play();
 			let done = false;
