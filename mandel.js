@@ -66,7 +66,7 @@ const mandelSettings = {
 };
 
 const shaders = [];
-for (let i = 0; i < 16; ++i) {
+for (let i = 0; i < 4; ++i) {
 	const canvas = document.createElement('canvas');
 	canvas.width = mandelSettings.tileSize;
 	canvas.height = mandelSettings.tileSize;
