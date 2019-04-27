@@ -15,6 +15,9 @@ aubergine: #4b3f73
 body, section, footer { font-family: 'Lato'; }
 body, section { color: #383838; }
 
+a { color: #119aa2; }
+a:hover { color: #4b3f73;  }
+
 body {
 	margin: 2em 0;
 	padding: 0;
