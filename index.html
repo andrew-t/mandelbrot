@@ -1,11 +1,43 @@
 <html>
 	<head>
-		<meta http-equiv="refresh" content="0; url=leaflet" />
-		<script>
-			window.location.href = 'leaflet';
-		</script>
+		<title>andrewt.net / mandelbrot</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
 	</head>
 	<body>
-		The Mandelbrot Set generator has moved to <a href="original">here</a>, but you probably want the updated version <a href="leaflet">here</a> or the GLSL version <a href="shader-leaflet">here</a>.
+		<h1>Mandelbrot Set Explorer</h1>
+
+		<p>
+			This is my app for browsing <a href="https://www.youtube.com/watch?v=NGMRB4O922I">the Mandelbrot Set fractal</a> as if it were Google Maps.
+		</p>
+
+		<p>
+			It works the same as regular Google Maps, but instead of downloading images of maps, your computer calculates the images using the normal Mandelbrot Set algorithm.
+		</p>
+
+		<p>
+			I've written a couple of rendering engines for it so you have to pick one.
+		</p>
+
+		<div class="options">
+			<a class="option" href="shader-leaflet">
+				<span class="title">On your GPU</span>
+				<p class="description">
+					Render the fractal on your graphics card. This is insanely fast for even quite high numbers of iterations, but doesn't support double-precision numbers so you can't zoom as far in.
+				</p>
+			</a>
+
+			<a class="option" href="leaflet">
+				<span class="title">On your CPU</span>
+				<p class="description">
+					Render the fractal on your main CPU. This is much slower than rendering on a GPU, but supports double-precision numbers and so you can zoom in ridiculously far.
+				</p>
+			</a>
+		</div>
+
+		<p>
+			There's also this <a href="original">legacy version</a> which runs on the CPU but isn't as good and is only here for historical interest.
+		</p>
+		
+		<footer>Made by <a href="https://www.andrewt.net">Andrew</a>.</footer>
 	</body>
 </html>
