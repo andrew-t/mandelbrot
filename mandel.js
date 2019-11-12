@@ -22,7 +22,7 @@ void main() {
 	for (float iters = 0.0; iters < 1000000000.; ++iters) {
 		if (dot(z, z) > 4.0) {
 
-			float c = mod(iters / 20.0, 2.0);
+			float c = mod(iters / 200.0, 2.0);
 			if (c > 1.0) {
 				c -= 1.0;
 				gl_FragColor = vec4(
@@ -58,9 +58,9 @@ void main() {
 
 const mandelSettings = {
 	maxr: 2,
-	maxcol: 700,
-	maxcolmult: 1.5,
-	maxmaxcol: 10000,
+	maxcol: 1000,
+	maxcolmult: 2,
+	maxmaxcol: 20000,
 	tileSide: 5,
 	tileSize: 256
 };
@@ -110,8 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			'async': true,
 			continuousWorld: true,
 			attribution: '<a href="http://www.andrewt.net">andrewt.net</a>',
-			maxZoom: 42,
-			maxNativeZoom: 40,
+			maxZoom: 16,
+			maxNativeZoom: 14,
 			bounds: L.latLngBounds(
 				L.latLng(-Infinity, -1e30),
 				L.latLng(Infinity, 1e30))
